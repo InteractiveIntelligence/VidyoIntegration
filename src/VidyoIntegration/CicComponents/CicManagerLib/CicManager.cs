@@ -10,6 +10,7 @@ using VidyoIntegration.CommonLib;
 using VidyoIntegration.CommonLib.CicTypes;
 using VidyoIntegration.CommonLib.CicTypes.TransportClasses;
 using VidyoIntegration.CommonLib.ConversationTypes;
+using ININ.IceLib.QualityManagement;
 
 namespace VidyoIntegration.CicManagerLib
 {
@@ -394,6 +395,12 @@ namespace VidyoIntegration.CicManagerLib
                             }
                             else
                                 Trace.Cic.verbose("New assignment not detected.");
+
+                            // Start screen recording
+                            Trace.Main.note("Starting screen recording");
+                            var qualityManagementManager = QualityManagementManager.GetInstance(_session);
+                            var screenRecorder = new ScreenRecorder(qualityManagementManager);
+                            screenRecorder.StartRecording(interaction.UserQueueNames[0]);
                         }
 
                         // Disconnected
@@ -614,26 +621,14 @@ namespace VidyoIntegration.CicManagerLib
                 try
                 {
                     // Make list to watch
-                    //var newAttributesToWatch = new string[WatchedAttributes.Length + attributesToWatch.Length];
-                    //WatchedAttributes.CopyTo(newAttributesToWatch,0);
-                    //attributesToWatch.CopyTo(newAttributesToWatch, WatchedAttributes.Length);
                     var newAttributesToWatch = new List<string>();
                     newAttributesToWatch.AddRange(WatchedAttributes);
                     newAttributesToWatch.AddRange(attributesToWatch);
 
                     if (interaction is CallbackInteraction)
                     {
-                        //new[]
-                        //{
-                        //    CallbackInteractionAttributeName.CallbackMessage,
-                        //    CallbackInteractionAttributeName.CallbackPhone
-                        //}.CopyTo(newAttributesToWatch,
-                        //    newAttributesToWatch.Length);
-
-                        //var attrList = newAttributesToWatch.ToList();
                         newAttributesToWatch.Add(CallbackInteractionAttributeName.CallbackMessage);
                         newAttributesToWatch.Add(CallbackInteractionAttributeName.CallbackPhone);
-                        //newAttributesToWatch = attrList.ToArray();
                     }
 
                     // Add interaction to list
@@ -763,6 +758,57 @@ namespace VidyoIntegration.CicManagerLib
             }
         }
 
+        private EmailInteraction DoMakeEmailInteraction(QueueId queue, IEnumerable<KeyValuePair<string, string>> additionalAttributes)
+        {
+            using (Trace.Cic.scope())
+            {
+                try
+                {
+                    // Store in list to prevent multiple enumeration of IEnumerable
+                    var additionalAttributesList = additionalAttributes == null
+                        ? new List<KeyValuePair<string, string>>()
+                        : additionalAttributes.ToList();
+
+                    // Create parameters
+                    var emailContent = new EmailContent();
+                    emailContent.Subject = "Test subject";
+                    emailContent.Sender = new EmailAddress("chat@inin.com", "Video Chat");
+                    emailContent.Body = "Test body";
+                    emailContent.ToRecipients.Add(new EmailAddress("chatreply@inin.com", "Video Chat Reply"));
+                    
+                    var emParams = new EmailInteractionParameters(emailContent);
+
+                    // Add additional attributes
+                    var newWatchedAttributes = new List<string>(WatchedAttributes);
+                    foreach (var kvp in additionalAttributesList)
+                    {
+                        // Add as additional attribute if it's not a protected CIC attribute
+                        if (!_cicProtectedAttributes.Any(s => s.ToLower().Equals(kvp.Key.ToLower())))
+                            emParams.AdditionalAttributes.Add(kvp.Key, kvp.Value);
+
+                        // Add to our list of things we're going to watch
+                        newWatchedAttributes.Add(kvp.Key);
+                    }
+
+                    // Make email
+                    var interaction = InteractionsManager.GetInstance(_session).MakeEmail(emParams);
+
+                    // Set up stuff
+                    InitializeInteraction(interaction, additionalAttributesList.Select(x => x.Key).ToArray());
+
+                    // Transfer to queue
+                    interaction.BlindTransfer(queue);
+
+                    return interaction;
+                }
+                catch (Exception ex)
+                {
+                    Trace.Cic.exception(ex, "Failed to create email interaction! Error: {}", ex.Message);
+                    return null;
+                }
+            }
+        }
+
         private Interaction DoMakeInteraction(VideoConversationInitializationParameters parameters)
         {
             using (Trace.Cic.scope())
@@ -791,13 +837,21 @@ namespace VidyoIntegration.CicManagerLib
                                     callbackParameters.CallbackPhoneNumber, callbackParameters.CallbackMessage,
                                     parameters.AdditionalAttributes);
                             }
+                        case VideoConversationMediaType.Email:
+                            {
+                                // Cast parameters
+                                var emailParameters = parameters as EmailVideoConversationInitializationParameters;
+
+                                // Create interaction
+                                return DoMakeEmailInteraction(new QueueId(emailParameters.ScopedQueueName), parameters.AdditionalAttributes);
+                            }
                         default:
                             throw new Exception("Unable to make interaction for media type: " + parameters.MediaType);
                     }
                 }
                 catch (Exception ex)
                 {
-                    Trace.Cic.exception(ex, "Failed to create callback interaction! Error: {}", ex.Message);
+                    Trace.Cic.exception(ex, "Failed to create interaction! Error: {}", ex.Message);
                     return null;
                 }
             }
@@ -1138,6 +1192,8 @@ namespace VidyoIntegration.CicManagerLib
                             return VideoConversationMediaType.Chat;
                         case InteractionType.Generic:
                             return VideoConversationMediaType.GenericInteraction;
+                        case InteractionType.Email:
+                            return VideoConversationMediaType.Email;
                         default:
                             return VideoConversationMediaType.Other;
                     }
