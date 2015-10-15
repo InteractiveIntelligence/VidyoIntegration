@@ -32,6 +32,8 @@ namespace VidyoIntegration.CommonLib.ConversationTypes
                     return interaction as ChatInteraction;
                 case InteractionType.Generic:
                     return interaction as GenericInteraction;
+                case InteractionType.Email:
+                    return interaction as EmailInteraction;
                 default:
                     throw new Exception("Unable to cast interaction of type " + interaction.InteractionType +
                                         " to VideoConversationInitializationParameters");
@@ -68,6 +70,16 @@ namespace VidyoIntegration.CommonLib.ConversationTypes
                 {
                     InteractionId = interaction.InteractionId.Id,
                     InitialState = GenericInteractionInitialState.Offering
+                };
+        }
+
+        public static implicit operator VideoConversationInitializationParameters(EmailInteraction interaction)
+        {
+            return interaction == null
+                ? null
+                : new EmailVideoConversationInitializationParameters
+                {
+                    InteractionId = interaction.InteractionId.Id
                 };
         }
     }

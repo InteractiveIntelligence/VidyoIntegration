@@ -65,6 +65,8 @@ namespace VidyoIntegration.CommonLib.CicTypes.Serializers
                         return new ChatInteractionMediaTypeParameters();
                     case VideoConversationMediaType.Callback:
                         return new CallbackInteractionMediaTypeParameters();
+                    case VideoConversationMediaType.Email:
+                        return new EmailInteractionMediaTypeParameters();
                 }
             }
 

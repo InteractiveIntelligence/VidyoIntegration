@@ -27,6 +27,8 @@ namespace VidyoIntegration.ConversationManagerLib.Supporting
                             return new ChatVideoConversationInitializationParameters();
                         case VideoConversationMediaType.Callback:
                             return new CallbackVideoConversationInitializationParameters();
+                        case VideoConversationMediaType.Email:
+                            return new EmailVideoConversationInitializationParameters();
                     }
                 }
 

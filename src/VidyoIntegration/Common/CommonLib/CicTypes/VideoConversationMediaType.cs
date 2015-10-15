@@ -6,6 +6,7 @@
         Other,
         GenericInteraction,
         Chat,
-        Callback
+        Callback,
+        Email
     }
 }

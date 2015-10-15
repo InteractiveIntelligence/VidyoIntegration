@@ -462,6 +462,15 @@ namespace VidyoIntegration.CoreServiceLib
                             ScopedQueueName = request.GetScopedQueueName()
                         };
                     }
+                    else if (request.MediaTypeParameters is EmailInteractionMediaTypeParameters)
+                    {
+                        var requestParameters = request.MediaTypeParameters as EmailInteractionMediaTypeParameters;
+                        videoParameters = new EmailVideoConversationInitializationParameters
+                        {
+                            Content = "Vidyo chat",
+                            ScopedQueueName = request.GetScopedQueueName()
+                        };
+                    }
                     else
                     {
                         throw new Exception("Unsupported media type for new conversation: " +
