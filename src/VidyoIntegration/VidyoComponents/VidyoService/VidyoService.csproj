@@ -12,6 +12,8 @@
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -34,7 +36,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="i3trace_dotnet_tracing-w32r-4-0">
-      <HintPath>..\..\..\..\..\..\lib\IceLib\IC4_2015_R4_P0 (x86)\bin\i3trace_dotnet_tracing-w32r-4-0.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\Interactive Intelligence\ICUserApps\i3trace_dotnet_tracing-w32r-4-0.dll</HintPath>
     </Reference>
     <Reference Include="Nancy, Version=1.3.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Nancy.1.3.0\lib\net40\Nancy.dll</HintPath>
@@ -57,6 +59,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Service References\VidyoPortalReplayService\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
     <Compile Include="VidyoRequestRouter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Service References\VidyoPortalAdminService\Reference.cs">
@@ -395,6 +402,31 @@
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
     <None Include="Service References\VidyoPortalGuestService\VidyoPortalGuestService.wsdl" />
+    <None Include="Service References\VidyoPortalReplayService\VidyoIntegration.VidyoService.VidyoPortalReplayService.DeleteRecordResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\VidyoPortalReplayService\VidyoIntegration.VidyoService.VidyoPortalReplayService.DeleteRecordResponse1.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\VidyoPortalReplayService\VidyoIntegration.VidyoService.VidyoPortalReplayService.Record.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\VidyoPortalReplayService\VidyoIntegration.VidyoService.VidyoPortalReplayService.RecordsByIdResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\VidyoPortalReplayService\VidyoIntegration.VidyoService.VidyoPortalReplayService.RecordsSearchResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\VidyoPortalReplayService\VidyoIntegration.VidyoService.VidyoPortalReplayService.RecordsSearchResponse1.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\VidyoPortalReplayService\VidyoIntegration.VidyoService.VidyoPortalReplayService.UpdateRecordResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\VidyoPortalReplayService\VidyoIntegration.VidyoService.VidyoPortalReplayService.UpdateRecordResponse1.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\VidyoPortalReplayService\VidyoReplayContentManagementService1.wsdl" />
     <None Include="Service References\VidyoPortalUserService\VidyoIntegration.VidyoService.VidyoPortalUserService.AddToMyContactsResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
@@ -763,6 +795,7 @@
   <ItemGroup>
     <WCFMetadataStorage Include="Service References\VidyoPortalAdminService\" />
     <WCFMetadataStorage Include="Service References\VidyoPortalGuestService\" />
+    <WCFMetadataStorage Include="Service References\VidyoPortalReplayService\" />
     <WCFMetadataStorage Include="Service References\VidyoPortalUserService\" />
   </ItemGroup>
   <ItemGroup>
@@ -811,10 +844,29 @@
       <Name>TraceLib</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\VidyoPortalReplayService\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\VidyoPortalReplayService\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\VidyoPortalReplayService\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy "$(TargetDir)*.*" "$(SolutionDir)Common\VidyoIntegrationTestConsole\$(OutDir)*.*" /f /e /y</PostBuildEvent>
   </PropertyGroup>
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
