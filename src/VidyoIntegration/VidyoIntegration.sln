@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "VidyoComponents", "VidyoComponents", "{F5ACDC4C-7B30-4A16-8E94-353B76145CD8}"
 EndProject
@@ -52,6 +52,13 @@ Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "VidyoIntegrationWindowsServ
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TraceLib", "Common\TraceLib\TraceLib.csproj", "{EC6C24DD-3835-4446-9FC0-EF885D6EE8F1}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{15EE3CF1-B705-4EEB-92A6-CEC3CBC202C4}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -74,12 +81,10 @@ Global
 		{4DA37223-92A6-4562-BC9A-00CA739DB721}.Release|x86.ActiveCfg = Release|Any CPU
 		{7CDFFC88-EBE8-4C67-9A14-57A46FD534D1}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{7CDFFC88-EBE8-4C67-9A14-57A46FD534D1}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{7CDFFC88-EBE8-4C67-9A14-57A46FD534D1}.Debug|Mixed Platforms.Build.0 = Debug|x86
 		{7CDFFC88-EBE8-4C67-9A14-57A46FD534D1}.Debug|x86.ActiveCfg = Debug|x86
 		{7CDFFC88-EBE8-4C67-9A14-57A46FD534D1}.Debug|x86.Build.0 = Debug|x86
 		{7CDFFC88-EBE8-4C67-9A14-57A46FD534D1}.Release|Any CPU.ActiveCfg = Release|x86
 		{7CDFFC88-EBE8-4C67-9A14-57A46FD534D1}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{7CDFFC88-EBE8-4C67-9A14-57A46FD534D1}.Release|Mixed Platforms.Build.0 = Release|x86
 		{7CDFFC88-EBE8-4C67-9A14-57A46FD534D1}.Release|x86.ActiveCfg = Release|x86
 		{7CDFFC88-EBE8-4C67-9A14-57A46FD534D1}.Release|x86.Build.0 = Release|x86
 		{7F1F7148-6E69-476C-9BE6-4AC87C673C75}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -174,12 +179,10 @@ Global
 		{9FBCFE44-7752-4EF0-8547-4CA9DD28D1BF}.Release|x86.ActiveCfg = Release|Any CPU
 		{234B024E-40D6-4CE3-8110-4840E90E7290}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{234B024E-40D6-4CE3-8110-4840E90E7290}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{234B024E-40D6-4CE3-8110-4840E90E7290}.Debug|Mixed Platforms.Build.0 = Debug|x86
 		{234B024E-40D6-4CE3-8110-4840E90E7290}.Debug|x86.ActiveCfg = Debug|x86
 		{234B024E-40D6-4CE3-8110-4840E90E7290}.Debug|x86.Build.0 = Debug|x86
 		{234B024E-40D6-4CE3-8110-4840E90E7290}.Release|Any CPU.ActiveCfg = Release|x86
 		{234B024E-40D6-4CE3-8110-4840E90E7290}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{234B024E-40D6-4CE3-8110-4840E90E7290}.Release|Mixed Platforms.Build.0 = Release|x86
 		{234B024E-40D6-4CE3-8110-4840E90E7290}.Release|x86.ActiveCfg = Release|x86
 		{234B024E-40D6-4CE3-8110-4840E90E7290}.Release|x86.Build.0 = Release|x86
 		{EC6C24DD-3835-4446-9FC0-EF885D6EE8F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
