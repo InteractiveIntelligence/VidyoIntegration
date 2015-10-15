@@ -492,6 +492,56 @@ namespace VidyoIntegration.VidyoService
             };
             #endregion
 
+            // Section: /replay
+            #region GET /replay/{roomId}
+            Get[UriPrefix + "/replay/{roomId}"] = _p =>
+            {
+                using (Trace.Vidyo.scope("GET /replay/{roomId}"))
+                {
+                    try
+                    {
+                        UpdateCount("get /replay/{roomId}");
+
+                        // Validate input
+                        if (_p.roomId <= 0)
+                            return new Response
+                            {
+                                StatusCode = HttpStatusCode.BadRequest,
+                                ReasonPhrase = "Value cannot be empty: roomId"
+                            };
+
+                        var record = Vidyo.GetRecord(_p.roomId);
+                        return record ?? new Response
+                        {
+                            StatusCode = HttpStatusCode.Gone,
+                            ReasonPhrase = "Record not found"
+                        };
+                    }
+                    catch (FormatException ex)
+                    {
+                        Trace.WriteEventError(ex, "Error in GET /replay/{roomId}: " + ex.Message,
+                               EventId.GenericError);
+                        return new Response
+                        {
+                            StatusCode = HttpStatusCode.BadRequest,
+                            ReasonPhrase = "Invalid data format"
+                        };
+                    }
+                    catch (Exception ex)
+                    {
+                        Trace.WriteEventError(ex, "Error in GET /replay/{roomId}: " + ex.Message,
+                            EventId.GenericError);
+                        return new Response
+                        {
+                            StatusCode = HttpStatusCode.InternalServerError,
+                            ReasonPhrase = ex.Message
+                        };
+                    }
+                }
+            };
+            #endregion
+
+
         }
 
         private static void UpdateCount(string key)

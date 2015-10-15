@@ -7,6 +7,7 @@ using VidyoIntegration.TraceLib;
 using RestSharp;
 using VidyoIntegration.CommonLib.VidyoTypes.RequestClasses;
 using VidyoIntegration.CommonLib.VidyoTypes.TransportClasses;
+using VidyoIntegration.CommonLib.VidyoTypes.ReplayClasses;
 
 namespace VidyoIntegration.CommonLib.VidyoTypes
 {
@@ -377,6 +378,36 @@ namespace VidyoIntegration.CommonLib.VidyoTypes
                     Trace.WriteEventError(ex, "Exception in MuteAudio: " + ex.Message, EventId.GenericError);
                     //return null;
                 }
+            }
+        }
+
+        public static string GetRecord(int roomId)
+        {
+            using (Trace.Common.scope())
+            {
+                try
+                {
+                    // Build request
+                    var request = new RestRequest("replay/{roomId}", Method.GET) { RequestFormat = DataFormat.Json };
+                    request.AddHeader("Content-Type", "application/json");
+                    request.AddUrlSegment("roomId", roomId.ToString());
+
+                    // Call service
+                    var response = ExecuteRequest<Record>(request);
+
+                    // Check response
+                    if (!ValidateResponse(response, response.Data))
+                        throw new Exception("Response data was not valid! Aborting!");
+
+                    // Handle response
+                    return response.Data.ExternalPlaybackLink;
+
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteEventError(ex, String.Format("Exception in GetRecord({0}): {1}", roomId, ex.Message), EventId.GenericError);
+                }
+                return String.Empty;
             }
         }
 

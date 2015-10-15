@@ -14,6 +14,7 @@ using VidyoIntegration.CommonLib.VidyoTypes.TransportClasses;
 using VidyoIntegration.VidyoService.VidyoPortalAdminService;
 using VidyoIntegration.VidyoService.VidyoPortalGuestService;
 using VidyoIntegration.VidyoService.VidyoPortalUserService;
+using VidyoIntegration.VidyoService.VidyoPortalReplayService;
 using DeleteRoomRequest = VidyoIntegration.VidyoService.VidyoPortalAdminService.DeleteRoomRequest;
 using Filter = VidyoIntegration.VidyoService.VidyoPortalAdminService.Filter;
 using GetParticipantsRequest = VidyoIntegration.VidyoService.VidyoPortalAdminService.GetParticipantsRequest;
@@ -25,6 +26,8 @@ using StartVideoRequest = VidyoIntegration.VidyoService.VidyoPortalAdminService.
 using StopVideoRequest = VidyoIntegration.VidyoService.VidyoPortalAdminService.StopVideoRequest;
 using Trace = VidyoIntegration.CommonLib.Trace;
 using UnmuteAudioRequest = VidyoIntegration.VidyoService.VidyoPortalAdminService.UnmuteAudioRequest;
+using RecordsSearchRequest = VidyoIntegration.VidyoService.VidyoPortalReplayService.RecordsSearchRequest;
+using Exception = System.Exception; // VidyoReplay also has an object called Exception
 
 namespace VidyoIntegration.VidyoService
 {
@@ -35,6 +38,7 @@ namespace VidyoIntegration.VidyoService
         private VidyoPortalGuestServicePortTypeClient _vidyoGuestService;
         private VidyoPortalUserServicePortTypeClient _vidyoUserService;
         private VidyoPortalAdminServicePortTypeClient _vidyoAdminService;
+        private VidyoReplayContentManagementServicePortTypeClient _vidyoReplayService;
         private readonly Random _randomNumberGenerator = new Random();
         private readonly Dictionary<int, Room> _rooms = new Dictionary<int, Room>(); 
 
@@ -90,6 +94,15 @@ namespace VidyoIntegration.VidyoService
                     _vidyoUserService.ClientCredentials.SupportInteractive = false;
                     _vidyoUserService.ChannelFactory.CreateChannel();
 
+                    // Replay service
+                    _vidyoReplayService =
+                        new VidyoReplayContentManagementServicePortTypeClient(
+                            MakeBinding(ConfigurationProperties.VidyoReplayContentManagementServicePort.Address.Scheme),
+                            new EndpointAddress(ConfigurationProperties.VidyoReplayContentManagementServicePort.Address));
+                    _vidyoReplayService.ClientCredentials.UserName.UserName = ConfigurationProperties.VidyoAdminUsername;
+                    _vidyoReplayService.ClientCredentials.UserName.Password = ConfigurationProperties.VidyoAdminPassword;
+                    _vidyoReplayService.ClientCredentials.SupportInteractive = false;
+                    _vidyoReplayService.ChannelFactory.CreateChannel();
                 }
                 catch (Exception ex)
                 {
@@ -221,6 +234,11 @@ namespace VidyoIntegration.VidyoService
                     participantID = participant.ParticipantId
                 });
             }
+        }
+
+        public Record GetRecord(int roomId)
+        {
+            return GetRecordInfo(roomId);
         }
 
         #endregion
@@ -647,6 +665,35 @@ namespace VidyoIntegration.VidyoService
             }
         }
 
+        internal Record GetRecordInfo(int roomId)
+        {
+            using (Trace.Vidyo.scope())
+            {
+                try
+                {
+                    //TODO Get the recording for the disconnected interaction (query?)
+                    Trace.Vidyo.note("Getting recording URL for room {}", roomId);
+
+                    var recordsSearchRequest = new RecordsSearchRequest();
+                    recordsSearchRequest.sortBy = sortBy.date;
+                    recordsSearchRequest.recordScope = recordScopeFilter.all;
+                    recordsSearchRequest.dir = sortDirection.DESC;
+                    recordsSearchRequest.query = String.Format("roomID={0}", roomId);
+                    var recordsSearchResponse = _vidyoReplayService.RecordsSearch(recordsSearchRequest);
+
+                    if (recordsSearchResponse.records.Length > 0)
+                    {
+                        //Return the first record
+                        return recordsSearchResponse.records[0];
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteEventError(ex, "Exception in GetRecord: " + ex.Message, EventId.GenericError);
+                }
+                return null;
+            }
+        }
         #endregion
 
     }

@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns="http://replay.vidyo.com/apiservice" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xs="http://www.w3.org/2001/XMLSchema" name="VidyoReplayContentManagementService" targetNamespace="http://replay.vidyo.com/apiservice" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://replay.vidyo.com/apiservice">
+      <xs:annotation>
+        <xs:documentation xml:lang="en" />
+      </xs:annotation>
+      <xs:element name="OK">
+        <xs:annotation>
+          <xs:documentation>String representation of successfull operation - "OK"</xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="OK" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:annotation>
+        <xs:documentation>sortBy enumeration of possible values;</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType name="sortBy">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="date" />
+          <xs:enumeration value="title" />
+          <xs:enumeration value="room" />
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:annotation>
+        <xs:documentation>sortDirection enumeration of possible values;</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType name="sortDirection">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="ASC" />
+          <xs:enumeration value="DESC" />
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:annotation>
+        <xs:documentation>recordScope enumeration of possible values;</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType name="recordScopeFilter">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="all" />
+          <xs:enumeration value="allUser" />
+          <xs:enumeration value="new" />
+          <xs:enumeration value="private" />
+          <xs:enumeration value="organizational" />
+          <xs:enumeration value="public" />
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType name="recordScopeUpdate">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="private" />
+          <xs:enumeration value="organization" />
+          <xs:enumeration value="public" />
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType name="recordLocked">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="true" />
+          <xs:enumeration value="false" />
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:complexType name="Exception">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="Exception" nillable="true" type="xs:anyType" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:element name="GeneralFault">
+        <xs:annotation>
+          <xs:documentation>
+                        This means that the exceptions happens in system.
+                    </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="GeneralFault" nillable="true" type="Exception" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="AccessViolationFault">
+        <xs:annotation>
+          <xs:documentation>
+                        This means that the exceptions happens in system.
+                    </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="AccessViolationFault" nillable="true" type="Exception" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:complexType name="Record">
+        <xs:annotation>
+          <xs:documentation>
+                        This elements array will be returned after user search request
+                        </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+          <xs:element name="id" type="xs:int" />
+          <xs:element name="guid" type="xs:string" />
+          <xs:element name="tenantName" type="xs:string" />
+          <xs:element name="userName" type="xs:string" />
+          <xs:element name="userFullName" type="xs:string" />
+          <xs:element name="dateCreated" type="xs:dateTime" />
+          <xs:element name="dateCreatedString" type="xs:string" />
+          <xs:element name="endTime" nillable="true" type="xs:dateTime" />
+          <xs:element name="duration" type="xs:string" />
+          <xs:element name="resolution" type="xs:string" />
+          <xs:element name="framerate" type="xs:int" />
+          <xs:element name="pin" nillable="true" type="xs:string" />
+          <xs:element name="recordScope" type="xs:string" />
+          <xs:element name="title" type="xs:string" />
+          <xs:element name="roomName" type="xs:string" />
+          <xs:element name="fileLink" type="xs:string" />
+          <xs:element name="recorderId" type="xs:string" />
+          <xs:element name="webcast" type="xs:boolean" />
+          <xs:element name="tags" nillable="true" type="xs:string" />
+          <xs:element name="comments" nillable="true" type="xs:string" />
+          <xs:element name="locked" type="xs:boolean" />
+          <xs:element name="externalPlaybackLink" nillable="true" type="xs:string" />
+          <xs:element name="fileSize" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:element name="RecordsResponse">
+        <xs:annotation>
+          <xs:documentation>
+                        This Record elements array will be returned after user search request
+                        </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="unbounded" name="records" type="Record" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="RecordsSearchResponse">
+        <xs:annotation>
+          <xs:documentation>
+                        This Record elements array plus counters will be returned after user search request
+                        allVideosCount - total available user records count including public and organizational records from other users
+                        searchCount - available user records count after applying search filtering
+                        myVideosCount - total user records count for user own records.\n
+                                         note: admin user has access for all available user records under particular tenant
+                        webcastCount - total webcasts count for particular user
+                        newCount - total new records count for particular user
+                        privateCount - total private records count for particular user
+                        organizationalCount - total organizational records count for particular user
+                        publicCount - total public records count for particular user
+                        records - records array returned based on limit and offset criteria. Maximum output limit is 200 records.
+                        </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="allVideosCount" type="xs:int" />
+            <xs:element name="searchCount" type="xs:int" />
+            <xs:element name="myVideosCount" type="xs:int" />
+            <xs:element name="webcastCount" type="xs:int" />
+            <xs:element name="newCount" type="xs:int" />
+            <xs:element name="privateCount" type="xs:int" />
+            <xs:element name="organizationalCount" type="xs:int" />
+            <xs:element name="publicCount" type="xs:int" />
+            <xs:element minOccurs="0" maxOccurs="unbounded" name="records" type="Record" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="RecordsSearchRequest">
+        <xs:annotation>
+          <xs:documentation>
+                        This elements returnes search records based on different criteria plus access levels.
+                        Can be used for output records paging via offset and limit parameters in a conjunction with 
+                        a previous GetRecordsSearchCountRequest element.
+                        userName is detected based on username loggged in and current tenant.
+                        tenantName is optional and can be used for super user only.
+                        default sorting criteria is by date descending
+                        Max output records number will be limited to 200 records
+                        
+                        sortBy valid values: 'date', 'title', 'room', defaulted to 'date' if no value present
+                        
+                        </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="tenantName" nillable="true" type="xs:string" />
+            <xs:element name="roomFilter" nillable="true" type="xs:string" />
+            <xs:element name="usernameFilter" nillable="true" type="xs:string" />
+            <xs:element name="query" nillable="true" type="xs:string" />
+            <xs:element name="recordScope" nillable="true" type="recordScopeFilter" />
+            <xs:element name="sortBy" nillable="true" type="sortBy" />
+            <xs:element name="dir" nillable="true" type="sortDirection" />
+            <xs:element name="limit" nillable="true" type="xs:int" />
+            <xs:element name="start" nillable="true" type="xs:int" />
+            <xs:element name="webcast" nillable="true" type="xs:boolean" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="RecordsByIdRequest">
+        <xs:annotation>
+          <xs:documentation>
+                        This elements requests a record id's array for input
+                        Note: only records, which user has view access to, will be returned
+                        </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="unbounded" name="id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="UpdateRecordRequest">
+        <xs:annotation>
+          <xs:documentation>
+                        This elements requests to update a record fields such as:
+                        title if not provided, will be retained without changes
+                        comments if not provided, will be retained without changes
+                        tags if not provided, will be retained without changes
+                        recordScope if not provided, will be retained without changes
+                                    1 - New
+                                    2 - Private
+                                    3 - Organization
+                                    4 - Public
+                        pin if not provided, will be retained without changes, empty string - pin removed from record
+                        based on record id.
+                        If record value is not provided, the same value will be retained
+                        locked if not provided, will be retained without changes
+                                true - record will be locked
+                                false - record will be unlocked
+                        </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="id" type="xs:int" />
+            <xs:element minOccurs="0" name="title" type="xs:string" />
+            <xs:element minOccurs="0" name="comments" nillable="true" type="xs:string" />
+            <xs:element minOccurs="0" name="tags" nillable="true" type="xs:string" />
+            <xs:element minOccurs="0" name="recordScope" nillable="true" type="recordScopeUpdate" />
+            <xs:element minOccurs="0" name="pin" nillable="true" type="xs:string" />
+            <xs:element minOccurs="0" name="locked" nillable="true" type="recordLocked" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="DeleteRecordRequest">
+        <xs:annotation>
+          <xs:documentation>
+                        This elements requests a record deletion based on record id.
+                        </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="id" type="xs:int" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="UpdateRecordResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element ref="OK" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="DeleteRecordResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element ref="OK" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:schema>
+  </wsdl:types>
+  <wsdl:message name="DeleteRecordOutput">
+    <wsdl:part name="parameter" element="DeleteRecordResponse" />
+  </wsdl:message>
+  <wsdl:message name="RecordsByIdInput">
+    <wsdl:part name="parameter" element="RecordsByIdRequest" />
+  </wsdl:message>
+  <wsdl:message name="UpdateRecordOutput">
+    <wsdl:part name="parameter" element="UpdateRecordResponse" />
+  </wsdl:message>
+  <wsdl:message name="RecordsOutput">
+    <wsdl:part name="parameter" element="RecordsResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteRecordInput">
+    <wsdl:part name="parameter" element="DeleteRecordRequest" />
+  </wsdl:message>
+  <wsdl:message name="UpdateRecordInput">
+    <wsdl:part name="parameter" element="UpdateRecordRequest" />
+  </wsdl:message>
+  <wsdl:message name="GeneralFault">
+    <wsdl:part name="fault" element="GeneralFault" />
+  </wsdl:message>
+  <wsdl:message name="RecordsSearchOutput">
+    <wsdl:part name="parameter" element="RecordsSearchResponse" />
+  </wsdl:message>
+  <wsdl:message name="RecordsSearchInput">
+    <wsdl:part name="parameter" element="RecordsSearchRequest" />
+  </wsdl:message>
+  <wsdl:message name="AccessViolationFault">
+    <wsdl:part name="fault" element="AccessViolationFault" />
+  </wsdl:message>
+  <wsdl:portType name="VidyoReplayContentManagementServicePortType">
+    <wsdl:operation name="RecordsSearch">
+      <wsdl:input message="RecordsSearchInput" />
+      <wsdl:output message="RecordsSearchOutput" />
+      <wsdl:fault name="GeneralFault" message="GeneralFault" />
+    </wsdl:operation>
+    <wsdl:operation name="RecordsById">
+      <wsdl:input message="RecordsByIdInput" />
+      <wsdl:output message="RecordsOutput" />
+      <wsdl:fault name="GeneralFault" message="GeneralFault" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateRecord">
+      <wsdl:input message="UpdateRecordInput" />
+      <wsdl:output message="UpdateRecordOutput" />
+      <wsdl:fault name="AccessViolationFault" message="AccessViolationFault" />
+      <wsdl:fault name="GeneralFault" message="GeneralFault" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteRecord">
+      <wsdl:input message="DeleteRecordInput" />
+      <wsdl:output message="DeleteRecordOutput" />
+      <wsdl:fault name="AccessViolationFault" message="AccessViolationFault" />
+      <wsdl:fault name="GeneralFault" message="GeneralFault" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="VidyoReplayContentManagementServiceBinding" type="VidyoReplayContentManagementServicePortType">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="RecordsSearch">
+      <soap:operation soapAction="RecordsSearch" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+      <wsdl:fault name="GeneralFault">
+        <soap:fault use="literal" name="GeneralFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="RecordsById">
+      <soap:operation soapAction="RecordsById" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+      <wsdl:fault name="GeneralFault">
+        <soap:fault use="literal" name="GeneralFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateRecord">
+      <soap:operation soapAction="UpdateRecord" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+      <wsdl:fault name="AccessViolationFault">
+        <soap:fault use="literal" name="AccessViolationFault" namespace="" />
+      </wsdl:fault>
+      <wsdl:fault name="GeneralFault">
+        <soap:fault use="literal" name="GeneralFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteRecord">
+      <soap:operation soapAction="DeleteRecord" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+      <wsdl:fault name="AccessViolationFault">
+        <soap:fault use="literal" name="AccessViolationFault" namespace="" />
+      </wsdl:fault>
+      <wsdl:fault name="GeneralFault">
+        <soap:fault use="literal" name="GeneralFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="VidyoReplayContentManagementService">
+    <wsdl:port name="VidyoReplayContentManagementServicePort" binding="VidyoReplayContentManagementServiceBinding">
+      <soap:address location="http://inin.sandboxgareplay.vidyo.com/replay/services/VidyoReplayContentManagementService/" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>
