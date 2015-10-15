@@ -151,7 +151,12 @@ namespace VidyoIntegration.VidyoAddin.ViewModel
 
                     // Call web service to get participant list
                     var participants = VidyoServiceClient.GetParticipants(VidyoRoomId);
-                    //Console.WriteLine("Participants (" + participants.Count + "): " + participants.Select(p => p.DisplayName).Aggregate((a, b) => a + "; " + b));
+
+                    if (participants == null)
+                    {
+                        // This is due to a bug in Vidyo not setting the correct URL
+                        return;
+                    }
 
                     // Update list
                     Context.Send(s => Participants.AddRange(participants, true), null);
