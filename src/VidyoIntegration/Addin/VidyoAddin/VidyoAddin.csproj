@@ -37,6 +37,12 @@
       <HintPath>C:\Program Files (x86)\Interactive Intelligence\ICUserApps\i3trace_dotnet_tracing-w32r-4-0.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="ININ.Client.Common">
+      <HintPath>C:\Program Files (x86)\Interactive Intelligence\ICUserApps\ININ.Client.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="ININ.Common">
+      <HintPath>C:\Program Files (x86)\Interactive Intelligence\ICUserApps\ININ.Common.dll</HintPath>
+    </Reference>
     <Reference Include="ININ.IceLib">
       <HintPath>C:\Program Files (x86)\Interactive Intelligence\ICUserApps\ININ.IceLib.dll</HintPath>
       <Private>False</Private>
@@ -52,6 +58,12 @@
     <Reference Include="ININ.InteractionClient.Addin">
       <HintPath>C:\Program Files (x86)\Interactive Intelligence\ICUserApps\ININ.InteractionClient.Addin.dll</HintPath>
       <Private>False</Private>
+    </Reference>
+    <Reference Include="ININ.InteractionClient.Contracts">
+      <HintPath>C:\Program Files (x86)\Interactive Intelligence\ICUserApps\ININ.InteractionClient.Contracts.dll</HintPath>
+    </Reference>
+    <Reference Include="ININ.InteractionClient.Core">
+      <HintPath>C:\Program Files (x86)\Interactive Intelligence\ICUserApps\ININ.InteractionClient.Core.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />

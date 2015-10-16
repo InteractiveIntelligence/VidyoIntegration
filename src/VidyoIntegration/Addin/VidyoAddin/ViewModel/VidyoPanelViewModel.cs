@@ -25,65 +25,6 @@ using System.Runtime.InteropServices;
 
 namespace VidyoIntegration.VidyoAddin.ViewModel
 {
-
-    using HWND = IntPtr;
-
-    /// <summary>Contains functionality to get all the open windows.</summary>
-    public static class OpenWindowGetter
-    {
-        /// <summary>Returns a dictionary that contains the handle and title of all the open windows.</summary>
-        /// <returns>A dictionary that contains the handle and title of all the open windows.</returns>
-        public static IDictionary<HWND, string> GetOpenWindows()
-        {
-            HWND shellWindow = GetShellWindow();
-            Dictionary<HWND, string> windows = new Dictionary<HWND, string>();
-
-            EnumWindows(delegate(HWND hWnd, int lParam)
-            {
-                if (hWnd == shellWindow) return true;
-                if (!IsWindowVisible(hWnd)) return true;
-
-                int length = GetWindowTextLength(hWnd);
-                if (length == 0) return true;
-
-                StringBuilder builder = new StringBuilder(length);
-                GetWindowText(hWnd, builder, length + 1);
-
-                windows[hWnd] = builder.ToString();
-                return true;
-
-            }, 0);
-
-            return windows;
-        }
-
-        public static void CloseWindow(IntPtr hwnd)
-        {
-            SendMessage(hwnd, WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
-        }
-
-        private delegate bool EnumWindowsProc(HWND hWnd, int lParam);
-        private const UInt32 WM_CLOSE = 0x0010;
-
-        [DllImport("USER32.DLL")]
-        private static extern bool EnumWindows(EnumWindowsProc enumFunc, int lParam);
-
-        [DllImport("USER32.DLL")]
-        private static extern int GetWindowText(HWND hWnd, StringBuilder lpString, int nMaxCount);
-
-        [DllImport("USER32.DLL")]
-        private static extern int GetWindowTextLength(HWND hWnd);
-
-        [DllImport("USER32.DLL")]
-        private static extern bool IsWindowVisible(HWND hWnd);
-
-        [DllImport("USER32.DLL")]
-        private static extern IntPtr GetShellWindow();
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        private static extern IntPtr SendMessage(IntPtr hWnd, UInt32 Msg, IntPtr wParam, IntPtr lParam);
-    }
-
     public class VidyoPanelViewModel : ViewModelBase
     {
         #region Private Vars
@@ -124,11 +65,6 @@ namespace VidyoIntegration.VidyoAddin.ViewModel
 
         private Process[] processes;
         private string procName = "Video Chat Reply - ";
-
-        #endregion
-
-        #region Imports
-
 
         #endregion
 
@@ -340,64 +276,12 @@ namespace VidyoIntegration.VidyoAddin.ViewModel
                     {
                         TryScreenPop(e.Interaction);
                     }
-
-                    // Kill the email interaction form
-                    if (e.Interaction.IsConnected && e.Interaction is EmailInteraction)
-                    {
-                        CloseEmailWindow();
-                    }
                 }
                 catch (Exception ex)
                 {
                     Trace.Main.exception(ex, ex.Message);
                 }
             }
-        }
-
-        private void CloseEmailWindow()
-        {
-            Trace.Main.note("Search for email dialog");
-            var emailHandle = FindWindow("Video Chat Reply -");
-            if (emailHandle != IntPtr.Zero)
-            {
-                Trace.Main.note("Closing {}", emailHandle.ToString());
-                OpenWindowGetter.CloseWindow(emailHandle);
-                Trace.Main.note("Email dialog closed");
-            }
-        }
-
-        private IntPtr FindWindow(string windowTitle)
-        {
-            foreach (KeyValuePair<IntPtr, string> window in OpenWindowGetter.GetOpenWindows())
-            {
-                IntPtr handle = window.Key;
-                string title = window.Value;
-
-                if (title.Contains(windowTitle))
-                {
-                    Trace.Main.note("Found {}: {}", handle, title);
-                    return handle;
-                    break;
-                }
-            }
-            return IntPtr.Zero;
-        }
-
-        private IntPtr FindConfirmationWindow(string windowTitle)
-        {
-            foreach (KeyValuePair<IntPtr, string> window in OpenWindowGetter.GetOpenWindows())
-            {
-                IntPtr handle = window.Key;
-                string title = window.Value;
-
-                if (title.Contains(windowTitle))
-                {
-                    Trace.Main.note("Found {}: {}", handle, title);
-                    return handle;
-                    break;
-                }
-            }
-            return IntPtr.Zero;
         }
 
         private void MyInteractionsOnInteractionRemoved(object sender, InteractionEventArgs e)

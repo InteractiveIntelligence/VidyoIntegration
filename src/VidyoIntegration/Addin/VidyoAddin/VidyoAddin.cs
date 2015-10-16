@@ -1,15 +1,20 @@
-﻿using System;
+﻿using ININ.IceLib.Connection;
+using ININ.IceLib.Interactions;
+using ININ.InteractionClient;
+using ININ.InteractionClient.AddIn;
+using ININ.InteractionClient.Messages.Interactions;
+using ININ.Messaging;
+using System;
 using System.Management.Instrumentation;
 using System.Threading;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Forms.Integration;
-using ININ.IceLib.Connection;
-using ININ.InteractionClient.AddIn;
 using VidyoIntegration.TraceLib;
 using VidyoIntegration.VidyoAddin.View;
 using VidyoIntegration.VidyoAddin.ViewModel;
 using MessageBox = System.Windows.Forms.MessageBox;
+using InteractionType = ININ.Client.Common.Interactions.InteractionType;
 
 namespace VidyoIntegration.VidyoAddin
 {
@@ -21,6 +26,7 @@ namespace VidyoIntegration.VidyoAddin
         private IInteractionSelector _interactionSelector;
         private Session _session;
         private readonly Window _window = null;
+        private IMessageBroker _messageBroker;
 
         protected override string Id
         {
@@ -76,6 +82,10 @@ namespace VidyoIntegration.VidyoAddin
                 // Store service provider reference
                 _serviceProvider = serviceProvider;
 
+                // Get Message Broker
+                _messageBroker = ServiceLocator.Current.GetInstance<IMessageBroker>();
+                _messageBroker.Subscribe<ShowCommonFormMessage>(SupressEmailForms);
+
                 // Get Session
                 _session = _serviceProvider.GetService(typeof (Session)) as Session;
                 if (_session == null)
@@ -122,6 +132,14 @@ namespace VidyoIntegration.VidyoAddin
             finally
             {
                 base.OnUnload();
+            }
+        }
+
+        private void SupressEmailForms(ShowCommonFormMessage showCommonFormMessage)
+        {
+            if (showCommonFormMessage.InteractionType == InteractionType.Email)
+            {
+                showCommonFormMessage.ShouldCancel = true;
             }
         }
     }
