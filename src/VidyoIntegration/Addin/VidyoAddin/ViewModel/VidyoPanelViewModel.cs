@@ -275,6 +275,17 @@ namespace VidyoIntegration.VidyoAddin.ViewModel
                         e.InteractionAttributeNames.Contains(InteractionAttributeName.State)) // Due to pickup
                     {
                         TryScreenPop(e.Interaction);
+
+                        if (e.Interaction is EmailInteraction)
+                        {
+                            Trace.Main.note("Interaction is an email");
+                            if (e.Interaction.GetStringAttribute(VideoIntegrationAttributeNames.VideoRoomUrl).Length > 0)
+                            {
+                                Trace.Main.note("Suppress disconnect confirmation dialog. Does not appear to be working though.");
+                                // Supress disconnect confirmation
+                                e.Interaction.SetStringAttribute("Eic_EmailHasBeenRespondedTo", "1");
+                            }
+                        }
                     }
                 }
                 catch (Exception ex)
