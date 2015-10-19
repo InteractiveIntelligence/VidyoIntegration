@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+	<meta charset="utf-8">
+	<title>Test of VidyoWeb Plug-In</title>
+<script src="./lib/jquery.1.11.0.min.js"></script>
+</head>
+<style>
+html, body{
+    height:100%;
+    margin:0;
+    padding:0;
+}
+
+.container{
+    position: fixed;
+    width:100%;
+    height: 100%;
+    bottom: 27px;
+}
+
+.videoWrapperSmall {
+    position:relative;
+	width:100%;
+	height:1%;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.videoWrapperFull {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width:100%;
+	height:99%;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.videoWrapperNone {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width:100%;
+	height:1%;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.videoFull{
+    position: relative;
+    width:100%;
+	height:100%;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+img.center{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 30px;
+}
+
+.buttons {
+    position: fixed;
+    width:100%;
+    height: 24px;
+	bottom: 0px;
+    padding-top: 3px;
+}
+
+#img_camera_b, #img_mic_b, #img_speaker_b, #img_disconnect_b, #img_share_b{
+	background: #9ba3a8;
+}
+
+div.dd { 
+   /*position: relative; /* IE is dumb */
+    display: block;                 
+    float: center;     
+    width: 300px; 
+    height: 16px; 
+    margin: 0 0 2px; 
+    background: #fff; 
+}
+
+div.dd div.blue { 
+    /*position: relative; */
+    background: #00f; 
+    height: 16px; 
+    width: 10%; 
+    text-align:right; 
+    display:block;
+    float: left;
+}
+div.dd div.red { 
+    /*position: relative; */
+    background: #f00; 
+    height: 16px; 
+    width: 10%; 
+    text-align:right; 
+    display:block;
+    float: left;
+}
+</style>
+<body onload="bodyLoaded()">
+<div class="container" id="whole">
+<div class="videoWrapperFull" id="VidyoSplash" align="center">
+   	<img src="./images/logo-big.jpg">
+
+    <div class="dd">
+        <div class="blue" id="progress_b"  style="width:16.6%;"></div>
+        <div class="red" id="progress_r" style="width:83.4%;"></div>
+    </div>
+</div>
+
+<div class="videoWrapperNone" id="VidyoInstall" align="left" style="display: none;">
+    <p>
+        <h5>Please follow the following instructions to install it.</h5>
+        <p>
+            <ol>
+                <li>Read <a href='files/EULA.html'>End User License Agreement</a>. By downloading plugin you acknoledge that you read EULA and that you agree to it.</li>
+                <li>Download VidyoWeb plugin for <a class='btn btn-small' href='files/VidyoWeb-win32-1.1.1.00075.msi'>Microsoft Windows</a> or <a class='btn btn-small' href='files/VidyoWeb-macosx-x64-1.1.1.00075.pkg'>Apple OSX</a>.</li>
+                <li>Install it by running the installer.</li>
+                <li>VidyoWeb API sample will start automatically when plugin is installed.</li>
+            </ol>
+        </p>
+        <p>
+            <small>&copy; 2013, 2014 <a href='http://www.vidyo.com'>Vidyo</a>. All rights reserved.</small>
+        </p>
+    </p>
+</div>
+
+<div class="videoWrapperSmall" id="VidyoArea" align="center">
+	<object id="pluginObject"
+          type="application/x-vidyoweb-1.1.1.00075"
+         style="width: 100%; height: 100%;">
+		<param name="onload" value="pluginLoaded" />
+	</object>
+</div>
+</div>
+<div class="buttons" id="Buttons" align="center">
+    <select id="img_share_b" onmouseenter="updateShareList()"
+      onchange="shareChanged(this.value); this.selectedindex = -1"
+         title="Share">
+       <img id="img_share" height="15px" src="./images/share.png">
+    </select>
+    <button id="img_camera_b"   onclick="toggleCameraIcon()">
+       <img id="img_camera" height="15px" src="./images/camera.png">
+    </button>
+    <button id="img_mic_b"       onclick="toggleMicIcon()">
+       <img id="img_mic" height="15px" src="./images/mic.png">
+    </button>
+    <button id="img_speaker_b"   onclick="toggleSpeakerIcon()">
+       <img id="img_speaker" height="15px" src="./images/speaker.png">
+       </button>
+    <button id="img_disconnect_b"onclick="sendLeaveEvent()">
+       <img id="img_speaker" height="15px" src="./images/disconnect.png">
+    </button>
+</div>
+</body>
+<script type="text/javascript">
+
+var isSharing = false;
+
+function updateShareList() {
+	log('updateShareList()');
+    var request = {
+    		'type': "RequestGetWindowsAndDesktops"
+	};
+    var msg;
+    if (plugin().sendRequest(request)) {
+        msg = "VidyoWeb sent " + request.type + " request successfully";
+    } else {
+        msg = "VidyoWeb did not send " + request.type + " request successfully!";
+    }
+    log("clientDesktopsAndWindowsGet(): " + msg, request);
+
+    var transformedData = {
+        windows: [],
+        desktops: [],
+//        sharing: (self.currentShareId === undefined) ? false : true
+    };
+    var i,
+        name,
+        mywindow,
+        desktop;
+    for (i = 0; i < request.numApplicationWindows; i++) {
+        name = (request.appWindowAppName[i] && request.appWindowAppName[i].length) ? request.appWindowAppName[i] : request.appWindowName[i];
+	        mywindow = {
+	            id: request.appWindowId[i],
+	            name: name,
+	//            highlight: (self.currentShareId === request.appWindowId[i]) ? true : false
+	        };
+	        transformedData.windows.push(mywindow);
+    }
+    
+    var options = $("#img_share_b");
+	options.html('');
+	options.append($("<option style='display:none'/>"));
+	
+	if (isSharing) {
+		options.append($("<option/>").val(-1).text("Stop Sharing"));
+	}
+	
+    $.each(transformedData.windows, function() {
+        options.append($("<option/>").val(this.id).text(this.name));
+    });
+}
+
+function shareChanged(shareId) {    
+    //shareId = -1 means stop sharing
+    if (shareId == -1) {
+    	stopSharing();
+    } else {
+    	startSharing(shareId);
+    }
+}
+
+function startSharing(shareId) {
+	isSharing = true;   
+
+	log("sending share event with id " + shareId);
+
+    sendShareEvent(shareId);
+}
+
+function stopSharing() {
+	isSharing = false;
+	log("sending unshare event");
+	sendUnshareEvent();
+}
+
+   
+function toggle(div_id) {
+	var el = document.getElementById(div_id);
+	if ( el.style.display == 'none' ) {	el.style.display = 'block';}
+	else {el.style.display = 'none';}
+}
+
+
+
+function getUrlVars() {
+    var vars = {};
+    var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+        vars[key] = decodeURIComponent(value);
+    });
+    return vars;
+}
+	// configuration of behavior for this code
+	var useConsoleForLogging = true;
+	var useAlertsForLogging = false;
+	var useCallbackForOutEvents = true;		// if false, use a JavaScript event instead of callback
+	var willStartOnLoad = true;			// if true, will invoke start() on plug-in object from bodyLoaded()
+
+	// Toggle Icon code
+	var img_camera_array= new Array('./images/camera_privacy.png','./images/camera.png');
+	var img_mic_array= new Array('./images/mic_mute.png','./images/mic.png');
+	var img_speaker_array= new Array('./images/speaker_mute.png','./images/speaker.png');
+	var count_camera=-1;
+	var count_mic=-1;
+	var count_speaker=-1;
+	
+	function toggleCameraIcon()
+	{
+    	count_camera++;
+    	document.getElementById("img_camera").src=img_camera_array[count_camera];
+    	if(count_camera==0)
+    		sendMuteCameraEvent();
+    	else
+    		sendUnmuteCameraEvent();
+    	if(count_camera==img_camera_array.length-1) {
+   		count_camera=-1;
+	    }
+    }
+
+	function toggleMicIcon()
+	{
+    	count_mic++;
+    	document.getElementById("img_mic").src=img_mic_array[count_mic];
+    	if(count_mic==0)
+    		sendMuteMicEvent();
+    	else
+    		sendUnmuteMicEvent();
+    	if(count_mic==img_mic_array.length-1) {
+   		count_mic=-1;
+	    }
+    }
+
+	function toggleSpeakerIcon()
+	{
+    	count_speaker++;
+    	document.getElementById("img_speaker").src=img_speaker_array[count_speaker];
+    	if(count_speaker==0)
+    		sendMuteSpeakerEvent();
+    	else
+    		sendUnmuteSpeakerEvent();
+    	if(count_speaker==img_speaker_array.length-1) {
+   		count_speaker=-1;
+	    }
+    }
+
+	// helper function declarations
+	var plugin = function () {
+		return document.getElementById('pluginObject');
+	};
+	var log = function (msg) {
+		if (useConsoleForLogging) {
+			console.log(msg);
+		}
+		if (useAlertsForLogging) {
+			alert(msg);
+		}
+	};
+
+
+    var setPreviewModeonStatusChange = function(participants, shares){
+        if (participants == 2){
+            if (shares>0){
+                setPreviewMode("Dock");
+            }else{
+                setPreviewMode("PIP");
+            }
+        }else if (participants == 1){
+            setPreviewMode("None");
+        }else{
+            setPreviewMode("Dock");
+        }
+    };
+    
+    /**
+     * Get Number of Participants
+     */
+    var clientGetNumParticipants = function () {
+        var that = {};
+        that.type = "RequestGetNumParticipants";
+        that.numParticipants =0;
+        
+        var msg;
+        if (plugin().sendRequest(that)) {
+            msg = "VidyoWeb sent " + that.type + " request successfully";
+        } else {
+            msg = "VidyoWeb did not send " + that.type + " request successfully!";
+        }
+        return that.numParticipants;
+    };
+    /**
+     * Select remote share to see
+     * @param  {Int} currApp ID of share to see
+     * @return {Object} Currently available shares
+     */
+    var clientSharesGet = function () {
+        var that = {};
+        that.type = "RequestGetWindowShares";
+
+        // public properties for created object,
+        // initial values of which are potentially passed
+        // into this factory function
+        that.requestType ="";// params && params.requestType || "";
+        that.remoteAppUri = [""];//params && params.remoteAppUri || [""];
+        that.remoteAppName = [""];// params && params.remoteAppName || [""];
+        that.numApp = 0;// params && params.numApp || 0;
+        that.currApp = 0;// params && params.currApp || 0;
+        that.eventUri = "";// params && params.eventUri || "";
+        that.newApp =  0;//params && params.newApp || 0;
+        
+        var msg;
+        if (plugin().sendRequest(that)) {
+            msg = "VidyoWeb sent " + that.type + " request successfully";
+        } else {
+            msg = "VidyoWeb did not send " + that.type + " request successfully!";
+        }
+        return that;
+    };
+
+    var sendGroupChatEvent = function (message) {
+        var inEvent = {
+                'type': "InEventGroupChat",
+                'message': message
+        };
+        var msg;
+        if (plugin().sendEvent(inEvent)) {
+            msg = "VidyoWeb sent group message successfully";
+        } else {
+            msg = "VidyoWeb could not send group message successfully!";
+            alert(msg);
+        }
+        log(msg);
+    };
+
+    var sendShareEvent = function(shareId) {
+        var inEvent = {
+                 'type': 'InEventShare',
+                 'window': shareId
+         };
+        var msg;
+        if (plugin().sendEvent(inEvent)) {
+            msg = "VidyoWeb sent share event successfully";
+        } else {
+            msg = "VidyoWeb could not send share event successfully!";
+            alert(msg);
+        }
+        log(msg);
+    }
+
+    var sendUnshareEvent = function() {
+         var inEvent = {
+                 'type': 'InEventUnshare'
+         };
+        var msg;
+        if (plugin().sendEvent(inEvent)) {
+            msg = "VidyoWeb sent unshare event successfully";
+        } else {
+            msg = "VidyoWeb could not send unshare event successfully!";
+            alert(msg);
+        }
+        log(msg);
+    }
+
+    
+    /**
+     * Select remote share to see
+     * @param  {String} currApp ID of share to make watch
+     * @return {Object} number of current shares
+     */
+    var clientSharesSetCurrent = function (newURI) {
+        var request = clientSharesGet();
+        var shares = request.numApp;
+        if (newURI){
+            for (i = 0; i < request.numApp; i++){
+                if (request.remoteAppUri[i]==newURI){
+                    request.newApp = i+1;
+                    break;
+                }
+            }
+        }else{
+            request.newApp = request.numApp;
+        }
+        request.type = "RequestSetWindowShares";
+        request.requestType = "ChangeSharingWindow";
+
+        var msg;
+
+        if (plugin().sendRequest(request)) {
+            msg = "VidyoWeb sent " + request.type + " request successfully";
+        } else {
+            msg = "VidyoWeb did not send " + request.type + " request successfully!";
+        }
+        return shares;
+    };
+
+
+    /**
+     * Gets desktops and windows available in the system
+     * @return {Object} Desktops and windows object
+     */
+    clientLocalSharesGet = function () {
+        var that = {};
+        that.type = "RequestGetWindowsAndDesktops";
+
+        // public properties for created object,
+        // initial values of which are potentially passed
+        // into this factory function
+        that.numApplicationWindows = 0; // params && params.numApplicationWindows || 0;
+        that.appWindowName = [""]; //params && params.appWindowName || [""];
+        that.appWindowAppName = [""]; //params && params.appWindowAppName || [""];
+        that.appWindowId = ["0x0000000000000000"]; // params && params.appWindowId || ["0x0000000000000000"];
+        that.numSystemDesktops = 0; // params && params.numSystemDesktops || 0;
+        that.sysDesktopName = [""]; //params && params.sysDesktopName || [""];
+        that.sysDesktopId = ["0x0000000000000000"]; //params && params.sysDesktopId || ["0x0000000000000000"];
+
+        // return object created by this factory function
+        var msg;
+        if (plugin().sendRequest(that)) {
+            msg = "VidyoWeb sent " + that.type + " request successfully";
+        } else {
+            msg = "VidyoWeb did not send " + that.type + " request successfully!";
+        }
+        
+        return that;
+    };
+
+
+	// declarations for functions, wired to plugin events
+	var onOutEvent = function (event) {
+        var log_mesg;
+	event = event || {};
+	var msg = "Received out event with type of " + event.type;
+	//alert(msg);
+	log(msg);
+	if(event.type == 'OutEventSignedIn'){
+			log("Joining Own Room");
+		    sendStartMyMeetingEvent();
+	}else if (event.type == 'OutEventSignIn'){
+            if (parseInt(event.activeEid, 10) === 0){
+               var licenseEvent = {
+                   'type': "InEventLicense" 
+               };
+ 	       plugin().sendEvent(licenseEvent); 
+            }
+        } else if (event.type == 'OutEventLogicStarted'){
+            if (willStartOnLoad) {
+                // sendLoginEvent();
+                
+                sendGuestLogin();
+            }
+	} else if (event.type == 'OutEventConferenceActive'){
+            document.getElementById("VidyoSplash").className = 'videoWrapperSmall';
+            toggle('VidyoSplash');
+			document.getElementById("VidyoArea").className = 'videoFull';
+            setPreferredMode(1);
+        } else if (event.type == 'OutEventConferenceEnded'){
+			document.getElementById("VidyoSplash").className = 'videoWrapperFull';
+            toggle('VidyoSplash');
+            document.getElementById("VidyoArea").className = 'videoWrapperSmall';
+			plugin().stop();
+		} else if (event.type == 'OutEventJoinProgress'){
+            prog_b = document.getElementById("progress_b").style.width;
+            p_int_b = parseInt(prog_b);
+            p_int_b = p_int_b + 16.6;
+            prog_b = p_int_b.toString() + "%";
+            p_int_r = 100 - p_int_b;
+            prog_r = p_int_r.toString() + "%";
+            document.getElementById("progress_r").style.width = prog_r;
+            document.getElementById("progress_b").style.width = prog_b;
+            log_mesg = "Join Progress " + prog_b;
+            log(log_mesg);
+        } else if (event.type == 'OutEventAddShare'){
+            log_mesg = "Share added from URI: " + event.URI;
+            log(log_mesg);
+            var params;
+            clientSharesSetCurrent(event.URI);
+            setPreviewMode("Dock");
+        }else if (event.type == 'OutEventRemoveShare'){
+            var shares = clientSharesSetCurrent();
+            var participants = clientGetNumParticipants();
+            setPreviewModeonStatusChange(participants, shares); 
+        }else if (event.type == 'OutEventParticipantsChanged'){
+            var shares = clientSharesGet();
+            setPreviewModeonStatusChange(event.participantCount, shares.numApp); 
+        }
+		//log(event);
+		/*var name;
+		for (name in event) {
+			log(name + ": " + event[name]);
+		}*/
+	};
+	
+    /**
+      * Detects if plugin is installed or not
+      *
+      * @return {Boolean} Application object
+      */
+      vidyoPluginIsInstalled = function() {
+         var isFound = false;
+         log('vidyoPluginIsInstalled()');
+         navigator.plugins.refresh(false);
+
+        /* Try NPAPI approach */
+        /*jslint unparam: true*/
+        $.each(navigator.mimeTypes, function (i, val) {
+            if (val.type === "application/x-vidyoweb-1.1.1.00075") {
+            /* Reload page when plugin is detected */
+               log('vidyoPluginIsInstalled() -- NPAPI plugin found');
+               isFound = true;
+               return true;
+            }
+        });
+        /*jslint unparam: false*/
+
+        /* Try IE approach */
+        try {
+           var control = new ActiveXObject("VidyoInc.VidyoWeb_1.1.1.00075");
+           if (control) {
+              log('vidyoPluginIsInstalled() -- ActiveX plugin found');
+              isFound = true;
+           }
+        } catch (ignore) {
+        }
+
+        if (isFound) {
+	        return true;
+        } else {
+            return false;
+        }
+    };
+
+    var timer;
+	// declarations for functions, wired to lifecycle events
+	var bodyLoaded = function () {
+        var pluginPresent = vidyoPluginIsInstalled();
+        if (!pluginPresent){
+            log("Plugin Not Installed!");
+            document.getElementById("VidyoSplash").className = 'videoWrapperNone';
+            document.getElementById("VidyoSplash").style.display = 'none';
+            document.getElementById("VidyoInstall").className = 'videoWrapperFull';
+            document.getElementById("VidyoInstall").style.display = 'block';
+            timer = setTimeout(function(){bodyLoaded()}, 3000);
+            
+        }else{
+            document.getElementById("VidyoSplash").className = 'videoWrapperFull';
+            document.getElementById("VidyoSplash").style.display = 'block';
+            document.getElementById("VidyoInstall").className = 'videoWrapperNone';
+            document.getElementById("VidyoInstall").style.display = 'none';
+            start();
+        }
+		
+	};
+	var pluginLoaded = function () {
+		//alert("Plugin loaded!");
+		log("Plugin loaded!");
+	};
+
+	// declarations for functions, wired to clicking of page hyperlinks
+	var start = function ()	{
+		var msg;
+		if (useCallbackForOutEvents) {
+			plugin().useCallbackForOutEvents = true;
+			plugin().outEventCallbackObject = this;
+			plugin().outEventCallbackMethod = "onOutEvent";
+		} else {
+			plugin().useCallbackForOutEvents = false;
+			if (plugin() && plugin().attachEvent) {
+				// used by IE browser
+				log("start() will call attachEvent()");
+				plugin().attachEvent("onouteventcallback", onOutEvent);
+			} else if (plugin() && plugin().addEventListener) {
+				// used by non-IE browsers
+				log("start() will call addEventListener()");
+				plugin().addEventListener("outeventcallback", onOutEvent, false);
+			}
+		}
+		if (plugin().start()) {
+			msg = "VidyoWeb started successfully";
+		} else {
+			msg = "VidyoWeb did not start successfully!";
+			alert(msg);
+		}
+		log(msg);
+	}
+	var isStarted = function () {
+		var msg;
+		if (plugin().isStarted()) {
+			msg = "VidyoWeb is started";
+		} else {
+			msg = "VidyoWeb is not started";
+		}
+		alert(msg);
+		log(msg);
+	};
+
+    var setPreferredMode = function(preferred){
+        var inEvent = {
+            'type': "InEventLayout" 
+        };
+        inEvent.numPreferred = preferred;
+        
+        var msg;
+		if (plugin().sendEvent(inEvent)) {
+			msg = "VidyoWeb sent login event successfully";
+		} else {
+			msg = "VidyoWeb not sent Preferred Mode event successfully!";
+			alert(msg);
+		}
+		log(msg);
+    };
+    
+    var setPreviewMode = function(previewMode){
+        var inEvent = {
+            'type': "EventPreview"
+        };
+        inEvent.previewMode = previewMode;
+        
+        var msg;
+		if (plugin().sendEvent(inEvent)) {
+			msg = "VidyoWeb sent login event successfully";
+		} else {
+			msg = "VidyoWeb not sent Preview  event successfully!";
+			alert(msg);
+		}
+		log(msg);
+    };
+	var sendLoginEvent = function () {
+		var portalUri = getUrlVars()["portalUri"];
+		var inEvent = {
+			'type': "InEventLogin",
+			'portalUri': portalUri,
+			'userName': "chetan",
+			'userPass': "gandhi"
+		};
+		var msg;
+		if (plugin().sendEvent(inEvent)) {
+			msg = "VidyoWeb sent login event successfully";
+		} else {
+			msg = "VidyoWeb not sent login event successfully!";
+			alert(msg);
+		}
+		log(msg);
+	};
+	
+	var sendGuestLogin = function () {
+        var portalUri = getUrlVars()["portalUri"];
+        if (!portalUri){
+            return 0;
+        }
+        var encoded = getUrlVars()["encoded"];
+        if (!encoded || (parseInt(encoded,10)==0)){
+            encoded = 0;
+        }else{
+            encoded = 1;
+        }
+        var portalRes;
+        var roomKey;
+        if (encoded){
+            var temp = decodeURIComponent(portalUri);
+            portalRes = temp.split("\/flex.html\?roomdirect.html&key=");
+            portalUri = portalRes[0];
+            roomKey = portalRes[1];
+        }else{
+            portalRes = portalUri.split("\/flex.html\?roomdirect.html");
+            portalUri = portalRes[0];
+            var roomKey = getUrlVars()["key"];
+        }
+
+        var guestName = getUrlVars()["guestName"];
+        if (!guestName){
+            guestName = "Guest";
+        }
+        guestName = guestName.split("+").join(" "); // This seems to be the fastest and mem efficient
+
+        var roomPin = getUrlVars()["roomPin"];
+        if (roomPin){
+            var inEvent = {
+                    'type': "PrivateInEventVcsoapGuestLink",
+                    'typeRequest': "GuestLink",
+                    'requestId': 1234,
+                    'portalUri': portalUri,
+                    'roomKey': roomKey,
+                    'pin': roomPin,
+                    'guestName': guestName
+                };
+        }else{
+            var inEvent = {
+                    'type': "PrivateInEventVcsoapGuestLink",
+                    'typeRequest': "GuestLink",
+                    'requestId': 1234,
+                    'portalUri': portalUri,
+                    'roomKey': roomKey,
+                    'guestName': guestName
+                };
+        }
+        var msg;
+        if (plugin().sendEvent(inEvent)) {
+            msg = "VidyoWeb sent guest login event successfully";
+        } else {
+            msg = "VidyoWeb not sent guest login event successfully!";
+            alert(msg);
+        }
+        log(msg);
+    };
+
+	var sendStartMyMeetingEvent = function () {
+		var inEvent = {
+			'type': "PrivateInEventStartMyMeeting"
+		};
+		var msg;
+		if (plugin().sendEvent(inEvent)) {
+			msg = "VidyoWeb sent start my meeting event successfully";
+		} else {
+			msg = "VidyoWeb not sent start my meeting event successfully!";
+			alert(msg);
+		}
+		log(msg);
+	};
+
+	var sendLeaveEvent = function () {
+		var inEvent = {
+			'type': "InEventLeave"
+		};
+		var msg;
+		// Make sure you reduce the size of the VidyoWeb Plugin renderer now, 
+		// otherwise you will see artifacts related to OpenGL
+		document.getElementById("pluginObject").style.width="1px";
+		document.getElementById("pluginObject").style.height="1px";
+
+		if (plugin().sendEvent(inEvent)) {
+			msg = "VidyoWeb sent leave event successfully";
+		} else {
+			msg = "VidyoWeb not in a call!";
+			alert(msg);
+		}
+		log(msg);
+	};
+
+	var sendMuteCameraEvent = function () {
+		var inEvent = {
+			'type': "InEventMuteVideo",
+			'willMute': true
+		};
+		var msg;
+		if (plugin().sendEvent(inEvent)) {
+			msg = "VidyoWeb sent Mute Camera successfully";
+		} else {
+			msg = "VidyoWeb could not send Mute Camera successfully!";
+			alert(msg);
+		}
+		log(msg);
+	};
+
+	var sendUnmuteCameraEvent = function () {
+		var inEvent = {
+			'type': "InEventMuteVideo",
+			'willMute': false
+		};
+		var msg;
+		if (plugin().sendEvent(inEvent)) {
+			msg = "VidyoWeb sent Mute Camera successfully";
+		} else {
+			msg = "VidyoWeb could not send Mute Camera successfully!";
+			alert(msg);
+		}
+		log(msg);
+	};
+
+	var sendMuteMicEvent = function () {
+		var inEvent = {
+			'type': "InEventMuteAudioIn",
+			'willMute': true
+		};
+		var msg;
+		if (plugin().sendEvent(inEvent)) {
+			msg = "VidyoWeb sent Mute Mic successfully";
+		} else {
+			msg = "VidyoWeb could not send Mute Mic successfully!";
+			alert(msg);
+		}
+		log(msg);
+	};
+
+	var sendUnmuteMicEvent = function () {
+		var inEvent = {
+			'type': "InEventMuteAudioIn",
+			'willMute': false
+		};
+		var msg;
+		if (plugin().sendEvent(inEvent)) {
+			msg = "VidyoWeb sent Mute Mic successfully";
+		} else {
+			msg = "VidyoWeb could not send Mute Mic successfully!";
+			alert(msg);
+		}
+		log(msg);
+	};
+
+	var sendMuteSpeakerEvent = function () {
+		var inEvent = {
+			'type': "InEventMuteAudioOut",
+			'willMute': true
+		};
+		var msg;
+		if (plugin().sendEvent(inEvent)) {
+			msg = "VidyoWeb sent Mute Speaker successfully";
+		} else {
+			msg = "VidyoWeb could not send Speaker Mic successfully!";
+			alert(msg);
+		}
+		log(msg);
+	};
+
+	var sendUnmuteSpeakerEvent = function () {
+		var inEvent = {
+			'type': "InEventMuteAudioOut",
+			'willMute': false
+		};
+		var msg;
+		if (plugin().sendEvent(inEvent)) {
+			msg = "VidyoWeb sent Mute Speaker successfully";
+		} else {
+			msg = "VidyoWeb could not send Mute Speaker successfully!";
+			alert(msg);
+		}
+		log(msg);
+	};
+
+	var stop = function ()	{
+		var msg;
+		if (plugin().stop()) {
+			msg = "VidyoWeb stopped successfully";
+		} else {
+			msg = "VidyoWeb did not stop successfully!";
+			alert(msg);
+		}
+		log(msg);
+	};
+
+	// code to execute immediately
+</script>
+</html>
