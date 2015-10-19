@@ -28,7 +28,8 @@ namespace VidyoIntegration.CommonLib
         public static ChannelEndpointElement VidyoPortalAdminServicePort { get { return GetEndpointConfig(); } }
         public static ChannelEndpointElement VidyoReplayContentManagementServicePort { get { return GetEndpointConfig(); } }
 
-
+        // Recording
+        public static string EnableRecording { get { return GetConfig(); } }
 
 
         private static ChannelEndpointElement GetEndpointConfig([CallerMemberName] string propertyName = "")

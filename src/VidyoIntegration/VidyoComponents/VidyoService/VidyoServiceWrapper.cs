@@ -27,6 +27,7 @@ using StopVideoRequest = VidyoIntegration.VidyoService.VidyoPortalAdminService.S
 using Trace = VidyoIntegration.CommonLib.Trace;
 using UnmuteAudioRequest = VidyoIntegration.VidyoService.VidyoPortalAdminService.UnmuteAudioRequest;
 using RecordsSearchRequest = VidyoIntegration.VidyoService.VidyoPortalReplayService.RecordsSearchRequest;
+using StartRecordingRequest = VidyoIntegration.VidyoService.VidyoPortalAdminService.StartRecordingRequest;
 using Exception = System.Exception; // VidyoReplay also has an object called Exception
 
 namespace VidyoIntegration.VidyoService
@@ -239,6 +240,11 @@ namespace VidyoIntegration.VidyoService
         public Record GetRecord(int roomId)
         {
             return GetRecordInfo(roomId);
+        }
+
+        public bool StartRecording(int roomId)
+        {
+            return StartRecordingRoom(roomId);
         }
 
         #endregion
@@ -694,6 +700,35 @@ namespace VidyoIntegration.VidyoService
                 return null;
             }
         }
+
+        internal bool StartRecordingRoom(int roomId)
+        {
+            using (Trace.Vidyo.scope())
+            {
+                try
+                {
+                    Trace.Vidyo.note("Start recording room {}", roomId);
+
+                    var startRecordingRequest = new StartRecordingRequest()
+                    {
+                        conferenceID = roomId,
+                        recorderPrefix = "02"
+                    };
+                    
+                    var startRecordingResponse = _vidyoAdminService.startRecording(startRecordingRequest);
+
+                    //TODO How to find out if it was a success?
+
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteEventError(ex, "Exception in StartRecordingRoom: " + ex.Message, EventId.GenericError);
+                }
+                return false;
+            }
+        }
+
         #endregion
 
     }

@@ -250,7 +250,7 @@ namespace VidyoIntegration.ConversationManagerLib
                         Room = VidyoServiceClient.CreateRoom(),
                         InitializationParameters = parameters
                     };
-
+                    
                     // Commit the conversation
                     Save(conversation);
 
@@ -324,6 +324,11 @@ namespace VidyoIntegration.ConversationManagerLib
                     return null;
                 }
             }
+        }
+
+        public static bool Record(int roomId)
+        {
+            return VidyoServiceClient.RecordRoom(roomId);
         }
 
         #endregion

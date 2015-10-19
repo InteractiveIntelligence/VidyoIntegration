@@ -117,26 +117,7 @@ namespace VidyoIntegration.CommonLib.VidyoTypes
         {
             return ValidateResponse(response) && data != null;
         }
-
-        //private static bool ValidateResponse<T>(IRestResponse response)
-        //{
-        //    if ((int)response.StatusCode < 200 || (int)response.StatusCode >= 300)
-        //    {
-        //        // Response was not OK
-        //        if (!string.IsNullOrEmpty(response.ErrorMessage))
-        //            Trace.Common.error("Error after request: {}", response.ErrorException);
-        //        if (response.ErrorException != null) throw response.ErrorException;
-        //        return false;
-        //    }
-
-        //    return true;
-        //}
-
-        //private static bool ValidateResponse<T>(IRestResponse response, object data)
-        //{
-        //    return ValidateResponse(response) && data != null;
-        //}
-
+      
         #endregion
 
 
@@ -408,6 +389,36 @@ namespace VidyoIntegration.CommonLib.VidyoTypes
                     Trace.WriteEventError(ex, String.Format("Exception in GetRecord({0}): {1}", roomId, ex.Message), EventId.GenericError);
                 }
                 return String.Empty;
+            }
+        }
+
+        public static bool RecordRoom(int roomId)
+        {
+            using (Trace.Common.scope())
+            {
+                try
+                {
+                    // Build request
+                    var request = new RestRequest("replay/{roomId}", Method.PUT) { };
+                    request.AddHeader("Content-Type", "application/json");
+                    request.AddUrlSegment("roomId", roomId.ToString());
+
+                    // Call service
+                    var response = ExecuteRequest<bool>(request);
+
+                    // Check response
+                    if (!ValidateResponse(response, response.Data))
+                        throw new Exception("Response data was not valid! Aborting!");
+
+                    // Handle response
+                    return response.Data;
+
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteEventError(ex, String.Format("Exception in RecordRoom({0}): {1}", roomId, ex.Message), EventId.GenericError);
+                }
+                return false;
             }
         }
 

@@ -396,11 +396,13 @@ namespace VidyoIntegration.CicManagerLib
                             else
                                 Trace.Cic.verbose("New assignment not detected.");
 
-                            // Start screen recording
-                            Trace.Main.note("Starting screen recording");
-                            var qualityManagementManager = QualityManagementManager.GetInstance(_session);
-                            var screenRecorder = new ScreenRecorder(qualityManagementManager);
-                            screenRecorder.StartRecording(interaction.UserQueueNames[0]);
+                            if (IsRecordingEnabled())
+                            {
+                                Trace.Main.note("Starting screen recording");
+                                var qualityManagementManager = QualityManagementManager.GetInstance(_session);
+                                var screenRecorder = new ScreenRecorder(qualityManagementManager);
+                                screenRecorder.StartRecording(interaction.UserQueueNames[0]);
+                            }
                         }
 
                         // Disconnected
@@ -857,6 +859,10 @@ namespace VidyoIntegration.CicManagerLib
             }
         }
 
+        private bool IsRecordingEnabled()
+        {
+            return ConfigurationProperties.EnableRecording.Equals("1") || ConfigurationProperties.EnableRecording.ToLower().Equals("true") || ConfigurationProperties.EnableRecording.ToLower().Equals("yes");
+        }
         #endregion
 
 

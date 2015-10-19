@@ -8,6 +8,7 @@ namespace VidyoIntegration.CommonLib.CicTypes.RequestClasses
         public string QueueName { get; set; }
         public CicQueueType QueueType { get; set; }
         public MediaTypeParameters MediaTypeParameters { get; set; }
+        public bool Record { get; set; }
 
         public string GetScopedQueueName()
         {

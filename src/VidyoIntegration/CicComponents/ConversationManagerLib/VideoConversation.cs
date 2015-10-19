@@ -64,6 +64,8 @@ namespace VidyoIntegration.ConversationManagerLib
 
         public string RoomUrl { get; set; }
 
+        public bool Record { get; set; }
+
         #endregion
 
 
@@ -78,6 +80,7 @@ namespace VidyoIntegration.ConversationManagerLib
             ScopedQueueName = "";
             IsConversationMuted = false;
             RoomUrl = "";
+            Record = false;
         }
 
         #endregion

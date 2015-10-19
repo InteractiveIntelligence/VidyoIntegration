@@ -485,7 +485,7 @@ namespace VidyoIntegration.CoreServiceLib
 
                     // Create conversation
                     var conversation = ConversationManager.CreateVideoConversation(videoParameters);
-
+                    
                     // Update additional attributes with conversation parameters
                     videoParameters.AdditionalAttributes[VideoIntegrationAttributeNames.VideoConversationId] =
                         conversation.ConversationId.ToString();
@@ -618,6 +618,11 @@ namespace VidyoIntegration.CoreServiceLib
                     return null;
                 }
             }
+        }
+
+        public bool Record(int roomId)
+        {
+            return ConversationManager.Record(roomId);
         }
 
         #endregion

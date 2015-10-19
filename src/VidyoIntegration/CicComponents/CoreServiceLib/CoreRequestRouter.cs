@@ -80,11 +80,19 @@ namespace VidyoIntegration.CoreServiceLib
 
                         // Create conversation
                         var conversation = CoreService.Instance.CreateConversation(request);
+
+                        // Record conversation
+                        if (request.Record)
+                        {
+                            CoreService.Instance.Record(conversation.Room.RoomId);
+                        }
+
                         return conversation ?? (dynamic)new Response
                         {
                             StatusCode = HttpStatusCode.InternalServerError,
                             ReasonPhrase = "Failed to create conversation"
                         };
+
                     }
                     catch (Exception ex)
                     {
