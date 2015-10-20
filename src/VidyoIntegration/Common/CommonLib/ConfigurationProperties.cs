@@ -29,7 +29,7 @@ namespace VidyoIntegration.CommonLib
         public static ChannelEndpointElement VidyoReplayContentManagementServicePort { get { return GetEndpointConfig(); } }
 
         // Recording
-        public static string EnableRecording { get { return GetConfig(); } }
+        public static string EnableScreenRecording { get { return GetConfig(); } }
 
 
         private static ChannelEndpointElement GetEndpointConfig([CallerMemberName] string propertyName = "")
