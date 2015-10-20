@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Timers;
-using VidyoIntegration.TraceLib;
-using Nancy;
+﻿using Nancy;
 using Nancy.ModelBinding;
 using Nancy.Routing;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using VidyoIntegration.CommonLib;
 using VidyoIntegration.CommonLib.CommonTypes;
 using VidyoIntegration.CommonLib.VidyoTypes.RequestClasses;
 using VidyoIntegration.CommonLib.VidyoTypes.TransportClasses;
-using Timer = System.Timers.Timer;
+using VidyoIntegration.TraceLib;
 
 namespace VidyoIntegration.VidyoService
 {
@@ -564,6 +561,10 @@ namespace VidyoIntegration.VidyoService
                             StatusCode = HttpStatusCode.Gone,
                             ReasonPhrase = "Failed to start recording room"
                         };
+
+                        //TODO Recording is not happening. Request sent to Pooja
+
+                        //TODO Call GetRecord now to store the playable link in the interaction?
 
                     }
                     catch (Exception ex)
