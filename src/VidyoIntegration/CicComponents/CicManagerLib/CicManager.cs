@@ -401,7 +401,12 @@ namespace VidyoIntegration.CicManagerLib
                                 Trace.Main.note("Starting screen recording");
                                 var qualityManagementManager = QualityManagementManager.GetInstance(_session);
                                 var screenRecorder = new ScreenRecorder(qualityManagementManager);
-                                screenRecorder.StartRecording(interaction.UserQueueNames[0]);
+                                var guids = screenRecorder.StartRecording(interaction.UserQueueNames[0]);
+                                if (guids != null && guids.Count() > 0)
+                                {
+                                    // Used by a custom handler to set custom attributes to the screen recording entry in Interaction Recorder
+                                    interaction.SetStringAttribute("Recorder_ScreenRecordingGuid", guids.ElementAt(0).ToString());
+                                }
                             }
                         }
 
@@ -861,7 +866,8 @@ namespace VidyoIntegration.CicManagerLib
 
         private bool IsRecordingEnabled()
         {
-            return ConfigurationProperties.EnableRecording.Equals("1") || ConfigurationProperties.EnableRecording.ToLower().Equals("true") || ConfigurationProperties.EnableRecording.ToLower().Equals("yes");
+            return ConfigurationProperties.EnableScreenRecording != null &&
+                (ConfigurationProperties.EnableScreenRecording.Equals("1") || ConfigurationProperties.EnableScreenRecording.ToLower().Equals("true") || ConfigurationProperties.EnableScreenRecording.ToLower().Equals("yes"));
         }
         #endregion
 
