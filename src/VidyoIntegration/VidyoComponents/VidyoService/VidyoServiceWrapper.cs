@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -6,29 +7,28 @@ using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Text;
 using System.Web;
-using VidyoIntegration.TraceLib;
-using Newtonsoft.Json;
 using VidyoIntegration.CommonLib;
 using VidyoIntegration.CommonLib.VidyoTypes.RequestClasses;
 using VidyoIntegration.CommonLib.VidyoTypes.TransportClasses;
+using VidyoIntegration.TraceLib;
 using VidyoIntegration.VidyoService.VidyoPortalAdminService;
 using VidyoIntegration.VidyoService.VidyoPortalGuestService;
-using VidyoIntegration.VidyoService.VidyoPortalUserService;
 using VidyoIntegration.VidyoService.VidyoPortalReplayService;
+using VidyoIntegration.VidyoService.VidyoPortalUserService;
 using DeleteRoomRequest = VidyoIntegration.VidyoService.VidyoPortalAdminService.DeleteRoomRequest;
+using Exception = System.Exception; // VidyoReplay also has an object called Exception
 using Filter = VidyoIntegration.VidyoService.VidyoPortalAdminService.Filter;
 using GetParticipantsRequest = VidyoIntegration.VidyoService.VidyoPortalAdminService.GetParticipantsRequest;
 using LeaveConferenceRequest = VidyoIntegration.VidyoService.VidyoPortalAdminService.LeaveConferenceRequest;
 using MuteAudioRequest = VidyoIntegration.VidyoService.VidyoPortalAdminService.MuteAudioRequest;
+using RecordsSearchRequest = VidyoIntegration.VidyoService.VidyoPortalReplayService.RecordsSearchRequest;
 using Room = VidyoIntegration.CommonLib.VidyoTypes.TransportClasses.Room;
 using RoomMode = VidyoIntegration.VidyoService.VidyoPortalAdminService.RoomMode;
+using StartRecordingRequest = VidyoIntegration.VidyoService.VidyoPortalAdminService.StartRecordingRequest;
 using StartVideoRequest = VidyoIntegration.VidyoService.VidyoPortalAdminService.StartVideoRequest;
 using StopVideoRequest = VidyoIntegration.VidyoService.VidyoPortalAdminService.StopVideoRequest;
 using Trace = VidyoIntegration.CommonLib.Trace;
 using UnmuteAudioRequest = VidyoIntegration.VidyoService.VidyoPortalAdminService.UnmuteAudioRequest;
-using RecordsSearchRequest = VidyoIntegration.VidyoService.VidyoPortalReplayService.RecordsSearchRequest;
-using StartRecordingRequest = VidyoIntegration.VidyoService.VidyoPortalAdminService.StartRecordingRequest;
-using Exception = System.Exception; // VidyoReplay also has an object called Exception
 
 namespace VidyoIntegration.VidyoService
 {
@@ -493,7 +493,6 @@ namespace VidyoIntegration.VidyoService
             }
         }
 
-
         internal List<Participant> GetParticipants(int roomId)
         {
             using (Trace.Vidyo.scope())
@@ -681,8 +680,8 @@ namespace VidyoIntegration.VidyoService
                     Trace.Vidyo.note("Getting recording URL for room {}", roomId);
 
                     var recordsSearchRequest = new RecordsSearchRequest();
+                    recordsSearchRequest.tenantName = "ININ";
                     recordsSearchRequest.sortBy = sortBy.date;
-                    recordsSearchRequest.recordScope = recordScopeFilter.all;
                     recordsSearchRequest.dir = sortDirection.DESC;
                     recordsSearchRequest.query = String.Format("roomID={0}", roomId);
                     var recordsSearchResponse = _vidyoReplayService.RecordsSearch(recordsSearchRequest);
@@ -712,14 +711,12 @@ namespace VidyoIntegration.VidyoService
                     var startRecordingRequest = new StartRecordingRequest()
                     {
                         conferenceID = roomId,
-                        recorderPrefix = "02"
+                        recorderPrefix = "02",
+                        webcast = false
                     };
                     
                     var startRecordingResponse = _vidyoAdminService.startRecording(startRecordingRequest);
-
-                    //TODO How to find out if it was a success?
-
-                    return true;
+                    return startRecordingResponse.OK != null && startRecordingResponse.OK == VidyoPortalAdminService.OK.OK;
                 }
                 catch (Exception ex)
                 {
