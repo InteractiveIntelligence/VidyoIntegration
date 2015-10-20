@@ -430,56 +430,6 @@ namespace VidyoIntegration.CoreServiceLib
             };
             #endregion
 
-            // Section: /replay
-            #region GET /conversations/{conversationId}
-            Get[UriPrefix + "/RecordsSearch/{conversationId}"] = _p =>
-            {
-                using (Trace.Cic.scope("GET /conversations/{conversationId}"))
-                {
-                    try
-                    {
-                        UpdateCount("get /conversations/{conversationId}");
-
-                        // Validate input
-                        if (((Guid)_p.conversationId) == Guid.Empty)
-                            return new Response
-                            {
-                                StatusCode = HttpStatusCode.BadRequest,
-                                ReasonPhrase = "Value cannot be empty: conversationId"
-                            };
-
-                        // Return room
-                        var conversation = ConversationManager.GetConversation((Guid)_p.conversationId);
-                        return conversation ??
-                               (dynamic)new Response
-                               {
-                                   StatusCode = HttpStatusCode.Gone,
-                                   ReasonPhrase = "Conversation not found"
-                               };
-                    }
-                    catch (FormatException ex)
-                    {
-                        Trace.WriteEventError(ex, "Error in GET /conversations/{conversationId}: " + ex.Message,
-                               EventId.GenericError);
-                        return new Response
-                        {
-                            StatusCode = HttpStatusCode.BadRequest,
-                            ReasonPhrase = "Invalid data format"
-                        };
-                    }
-                    catch (Exception ex)
-                    {
-                        Trace.WriteEventError(ex, "Exception in GET /conversations/{conversationId}: " + ex.Message, EventId.GenericError);
-                        return new Response
-                        {
-                            StatusCode = HttpStatusCode.InternalServerError,
-                            ReasonPhrase = ex.Message
-                        };
-                    }
-                }
-            };
-            #endregion
-
         }
 
         private static void UpdateCount(string key)
