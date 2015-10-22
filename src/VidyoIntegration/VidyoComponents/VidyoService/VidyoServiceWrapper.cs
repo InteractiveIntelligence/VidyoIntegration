@@ -25,6 +25,7 @@ using RecordsSearchRequest = VidyoIntegration.VidyoService.VidyoPortalReplayServ
 using Room = VidyoIntegration.CommonLib.VidyoTypes.TransportClasses.Room;
 using RoomMode = VidyoIntegration.VidyoService.VidyoPortalAdminService.RoomMode;
 using StartRecordingRequest = VidyoIntegration.VidyoService.VidyoPortalAdminService.StartRecordingRequest;
+using StopRecordingRequest = VidyoIntegration.VidyoService.VidyoPortalAdminService.StopRecordingRequest;
 using StartVideoRequest = VidyoIntegration.VidyoService.VidyoPortalAdminService.StartVideoRequest;
 using StopVideoRequest = VidyoIntegration.VidyoService.VidyoPortalAdminService.StopVideoRequest;
 using Trace = VidyoIntegration.CommonLib.Trace;
@@ -245,6 +246,11 @@ namespace VidyoIntegration.VidyoService
         public bool StartRecording(int roomId)
         {
             return StartRecordingRoom(roomId);
+        }
+
+        public bool StopRecording(int roomId)
+        {
+            return StopRecordingRoom(roomId);
         }
 
         #endregion
@@ -547,6 +553,36 @@ namespace VidyoIntegration.VidyoService
             }
         }
 
+        internal int? GetRecorderId(int roomId)
+        {
+            using (Trace.Vidyo.scope())
+            {
+                try
+                {
+                    var sw = new Stopwatch();
+                    sw.Start();
+                    var participants = _vidyoAdminService.getParticipants(new GetParticipantsRequest
+                    {
+                        conferenceID = roomId
+                    });
+                    sw.Stop();
+
+                    return participants.recorderID;
+                }
+                catch (CommunicationException ex)
+                {
+                    Console.WriteLine("Exception in GetRecorderId: " + ex.Message);
+                    Trace.WriteEventError(ex, "Exception in GetRecorderId: " + ex.Message, EventId.GenericError);
+                    return null;
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteEventError(ex, "Exception in GetRecorderId: " + ex.Message, EventId.GenericError);
+                    return null;
+                }
+            }
+        }
+
         internal bool KickParticipant(int roomId, int participantId)
         {
             using (Trace.Vidyo.scope())
@@ -676,7 +712,6 @@ namespace VidyoIntegration.VidyoService
             {
                 try
                 {
-                    //TODO Get the recording for the disconnected interaction (query?)
                     Trace.Vidyo.note("Getting recording URL for room {}", roomId);
 
                     var recordsSearchRequest = new RecordsSearchRequest();
@@ -716,11 +751,46 @@ namespace VidyoIntegration.VidyoService
                     };
                     
                     var startRecordingResponse = _vidyoAdminService.startRecording(startRecordingRequest);
-                    return startRecordingResponse.OK != null && startRecordingResponse.OK == VidyoPortalAdminService.OK.OK;
+                    return startRecordingResponse.OK == VidyoPortalAdminService.OK.OK;
                 }
                 catch (Exception ex)
                 {
                     Trace.WriteEventError(ex, "Exception in StartRecordingRoom: " + ex.Message, EventId.GenericError);
+                }
+                return false;
+            }
+        }
+
+        internal bool StopRecordingRoom(int roomId)
+        {
+            using (Trace.Vidyo.scope())
+            {
+                try
+                {
+                    Trace.Vidyo.note("Stop recording room {}", roomId);
+
+                    // Get recorder id
+                    int? recorderId = GetRecorderId(roomId);
+
+                    Trace.Vidyo.note("Recorder id: {}", recorderId);
+                    if (recorderId == null)
+                    {
+                        Trace.Vidyo.warning("No recording found for room {}", roomId);
+                        return true;
+                    }
+
+                    var stopRecordingRequest = new StopRecordingRequest()
+                    {
+                        conferenceID = roomId,
+                        recorderID = (int)recorderId
+                    };
+
+                    var stopRecordingResponse = _vidyoAdminService.stopRecording(stopRecordingRequest);
+                    return stopRecordingResponse.OK == VidyoPortalAdminService.OK.OK;
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteEventError(ex, "Exception in StopRecordingRoom: " + ex.Message, EventId.GenericError);
                 }
                 return false;
             }
