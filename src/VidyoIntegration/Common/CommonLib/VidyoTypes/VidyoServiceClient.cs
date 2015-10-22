@@ -362,7 +362,7 @@ namespace VidyoIntegration.CommonLib.VidyoTypes
             }
         }
 
-        public static string GetRecord(int roomId)
+        public static string GetRecordingPlaybackLink(int roomId)
         {
             using (Trace.Common.scope())
             {
@@ -392,7 +392,7 @@ namespace VidyoIntegration.CommonLib.VidyoTypes
             }
         }
 
-        public static bool RecordRoom(int roomId)
+        public static bool StartRecording(int roomId)
         {
             using (Trace.Common.scope())
             {
@@ -416,7 +416,37 @@ namespace VidyoIntegration.CommonLib.VidyoTypes
                 }
                 catch (Exception ex)
                 {
-                    Trace.WriteEventError(ex, String.Format("Exception in RecordRoom({0}): {1}", roomId, ex.Message), EventId.GenericError);
+                    Trace.WriteEventError(ex, String.Format("Exception in StartRecording({0}): {1}", roomId, ex.Message), EventId.GenericError);
+                }
+                return false;
+            }
+        }
+
+        public static bool StopRecording(int roomId)
+        {
+            using (Trace.Common.scope())
+            {
+                try
+                {
+                    // Build request
+                    var request = new RestRequest("replay/{roomId}", Method.DELETE) { };
+                    request.AddHeader("Content-Type", "application/json");
+                    request.AddUrlSegment("roomId", roomId.ToString());
+
+                    // Call service
+                    var response = ExecuteRequest<bool>(request);
+
+                    // Check response
+                    if (!ValidateResponse(response, response.Data))
+                        throw new Exception("Response data was not valid! Aborting!");
+
+                    // Handle response
+                    return response.Data;
+
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteEventError(ex, String.Format("Exception in StartRecording({0}): {1}", roomId, ex.Message), EventId.GenericError);
                 }
                 return false;
             }
