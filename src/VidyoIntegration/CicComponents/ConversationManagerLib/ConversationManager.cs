@@ -326,9 +326,14 @@ namespace VidyoIntegration.ConversationManagerLib
             }
         }
 
-        public static bool Record(int roomId)
+        public static bool StartRecording(int roomId)
         {
-            return VidyoServiceClient.RecordRoom(roomId);
+            return VidyoServiceClient.StartRecording(roomId);
+        }
+
+        public static bool StopRecording(VidyoConversation conversation)
+        {
+            return VidyoServiceClient.StopRecording(conversation.Room.RoomId);
         }
 
         #endregion
