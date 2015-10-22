@@ -561,15 +561,48 @@ namespace VidyoIntegration.VidyoService
                             StatusCode = HttpStatusCode.Gone,
                             ReasonPhrase = "Failed to start recording room"
                         };
-
-                        //TODO Recording is not happening. Request sent to Pooja
-
-                        //TODO Call GetRecord now to store the playable link in the interaction?
-
                     }
                     catch (Exception ex)
                     {
                         Trace.WriteEventError(ex, "Error in PUT /replay/{roomid}: " + ex.Message,
+                                  EventId.GenericError);
+                        return new Response
+                        {
+                            StatusCode = HttpStatusCode.InternalServerError,
+                            ReasonPhrase = ex.Message
+                        };
+                    }
+                }
+            };
+            #endregion
+            #region DELETE /replay/{roomid}
+            Delete[UriPrefix + "/replay/{roomid}"] = _p =>
+            {
+                using (Trace.Vidyo.scope("DELETE /replay/{roomid}"))
+                {
+                    try
+                    {
+                        UpdateCount("delete /replay/{roomid}");
+
+                        // Validate input
+                        if (_p.roomId <= 0)
+                            return new Response
+                            {
+                                StatusCode = HttpStatusCode.BadRequest,
+                                ReasonPhrase = "Value cannot be empty: roomId"
+                            };
+
+                        // Stop recording
+                        var recordStatus = Vidyo.StopRecording(_p.roomId);
+                        return recordStatus ?? new Response
+                        {
+                            StatusCode = HttpStatusCode.Gone,
+                            ReasonPhrase = "Failed to start recording room"
+                        };
+                    }
+                    catch (Exception ex)
+                    {
+                        Trace.WriteEventError(ex, "Error in DELETE /replay/{roomid}: " + ex.Message,
                                   EventId.GenericError);
                         return new Response
                         {
