@@ -224,6 +224,11 @@ namespace VidyoIntegration.CoreServiceLib
             }
         }
 
+        private bool StopRecording(VidyoConversation conversation)
+        {
+            return ConversationManager.StopRecording(conversation);
+        }
+
         private void CicOnInteractionDisconnected(long interactionId)
         {
             using (Trace.Cic.scope())
@@ -236,6 +241,10 @@ namespace VidyoIntegration.CoreServiceLib
                     var conversation = ConversationManager.GetConversation(interactionId);
                     if (conversation == null)
                         throw new ConversationNotFoundException(interactionId);
+
+                    StopRecording(conversation);
+
+                    SaveFileLinkToInteraction(conversation.Room.RoomId, interactionId);
 
                     CleanupConversation(conversation);
                 }
@@ -422,6 +431,27 @@ namespace VidyoIntegration.CoreServiceLib
                 catch (Exception ex)
                 {
                     Trace.WriteEventError(ex, "Error in CicOnVidyoNewConversationRequested: " + ex.Message, EventId.GenericError);
+                }
+            }
+        }
+
+        private void SaveFileLinkToInteraction(int roomId, long interactionId)
+        {
+            using (Trace.Cic.scope())
+            {
+                try
+                {
+                    // Get Recording file link
+                    var playbackLink = VidyoServiceClient.GetRecordingPlaybackLink(roomId);
+
+                    Trace.Main.note("Playback link: {}", playbackLink);
+
+                    // Set the attribute
+                    _cic.SetAttribute(interactionId, "Vidyo_RecordingFileLink", playbackLink);
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteEventError(ex, "Error in SaveFileLinkToInteraction: " + ex.Message, EventId.GenericError);
                 }
             }
         }
@@ -620,9 +650,9 @@ namespace VidyoIntegration.CoreServiceLib
             }
         }
 
-        public bool Record(int roomId)
+        public bool StartRecording(int roomId)
         {
-            return ConversationManager.Record(roomId);
+            return ConversationManager.StartRecording(roomId);
         }
 
         #endregion
