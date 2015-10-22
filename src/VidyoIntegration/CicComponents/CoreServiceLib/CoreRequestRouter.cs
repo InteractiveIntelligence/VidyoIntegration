@@ -84,7 +84,7 @@ namespace VidyoIntegration.CoreServiceLib
                         // Record conversation
                         if (request.Record)
                         {
-                            CoreService.Instance.Record(conversation.Room.RoomId);
+                            CoreService.Instance.StartRecording(conversation.Room.RoomId);
                         }
 
                         return conversation ?? (dynamic)new Response
