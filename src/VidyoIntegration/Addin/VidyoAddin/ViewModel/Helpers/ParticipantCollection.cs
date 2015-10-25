@@ -13,6 +13,8 @@ namespace VidyoIntegration.VidyoAddin.ViewModel.Helpers
             // Optionally clear first
             if (replace) Items.Clear();
 
+            if (items == null) return;
+
             // Privately set the items
             foreach (var item in items)
             {
