@@ -20,8 +20,8 @@ namespace VidyoIntegrationTestConsole
             pipelines.AfterRequest.AddItemToEndOfPipeline((ctx) =>
             {
                 ctx.Response.WithHeader("Access-Control-Allow-Origin", "*")
-                    .WithHeader("Access-Control-Allow-Methods", "POST,GET,PUT")
-                    .WithHeader("Access-Control-Allow-Headers", "Accept, Origin, Content-type");
+                    .WithHeader("Access-Control-Allow-Methods", "POST,GET,PUT,DELETE")
+                    .WithHeader("Access-Control-Allow-Headers", "Accept, Origin, Content-type, x-requested-with, ow-ajax");
 
             });
 
