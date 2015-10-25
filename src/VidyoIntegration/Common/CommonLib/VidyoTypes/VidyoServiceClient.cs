@@ -446,7 +446,7 @@ namespace VidyoIntegration.CommonLib.VidyoTypes
                 }
                 catch (Exception ex)
                 {
-                    Trace.WriteEventError(ex, String.Format("Exception in StartRecording({0}): {1}", roomId, ex.Message), EventId.GenericError);
+                    Trace.WriteEventError(ex, String.Format("Exception in StopRecording({0}): {1}", roomId, ex.Message), EventId.GenericError);
                 }
                 return false;
             }
