@@ -242,9 +242,12 @@ namespace VidyoIntegration.CoreServiceLib
                     if (conversation == null)
                         throw new ConversationNotFoundException(interactionId);
 
-                    StopRecording(conversation);
-
-                    SaveFileLinkToInteraction(conversation.Room.RoomId, interactionId);
+                    Trace.Cic.note("Conversation: {}", conversation.ToString());
+                    // Only run this if there was a recording
+                    if (StopRecording(conversation))
+                    {
+                        SaveFileLinkToInteraction(conversation.Room.RoomId, interactionId);
+                    }
 
                     CleanupConversation(conversation);
                 }
