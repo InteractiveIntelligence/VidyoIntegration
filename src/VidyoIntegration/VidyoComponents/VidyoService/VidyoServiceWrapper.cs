@@ -520,8 +520,8 @@ namespace VidyoIntegration.VidyoService
                     // Filter list to only real entities (not sure why bogus entries can be returned, but it's possible)
                     var confirmedParticipants =
                         participants.Entity.Where(participant => participant.participantID != null).ToList();
-                    Trace.Vidyo.note("Found {} participants in {}ms", confirmedParticipants.Count,
-                        sw.ElapsedMilliseconds);
+                    Trace.Vidyo.note("Found {} participants in {}ms for room {}", confirmedParticipants.Count,
+                        sw.ElapsedMilliseconds, roomId);
 
                     // Manipulate into return type
                     var guests = new List<Participant>();
@@ -718,7 +718,7 @@ namespace VidyoIntegration.VidyoService
                     recordsSearchRequest.tenantName = "ININ";
                     recordsSearchRequest.sortBy = sortBy.date;
                     recordsSearchRequest.dir = sortDirection.DESC;
-                    recordsSearchRequest.query = String.Format("roomID={0}", roomId);
+                    //recordsSearchRequest.query = String.Format("roomID={0}", roomId);
                     var recordsSearchResponse = _vidyoReplayService.RecordsSearch(recordsSearchRequest);
 
                     if (recordsSearchResponse.records.Length > 0)
@@ -776,7 +776,7 @@ namespace VidyoIntegration.VidyoService
                     if (recorderId == null)
                     {
                         Trace.Vidyo.warning("No recording found for room {}", roomId);
-                        return true;
+                        return false;
                     }
 
                     var stopRecordingRequest = new StopRecordingRequest()
