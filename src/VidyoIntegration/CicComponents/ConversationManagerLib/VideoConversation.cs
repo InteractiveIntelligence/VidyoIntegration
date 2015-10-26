@@ -24,7 +24,11 @@ namespace VidyoIntegration.ConversationManagerLib
 
         #endregion
 
-
+        public override string ToString()
+        {
+            return String.Format("Conversation Id: {0}, Room Id: {1}, ScopedQueueName: {2}, IsConversationMuted: {3}, UserOwner: {4}, RoomUrl: {5}, Record: {6}",
+                ConversationId.ToString(), _room.RoomId, ScopedQueueName, IsConversationMuted, UserOwner, RoomUrl, Record);
+        }
 
         #region Public Properties
 
