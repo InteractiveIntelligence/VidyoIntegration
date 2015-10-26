@@ -593,12 +593,8 @@ namespace VidyoIntegration.VidyoService
                             };
 
                         // Stop recording
-                        var recordStatus = Vidyo.StopRecording(_p.roomId);
-                        return recordStatus ?? new Response
-                        {
-                            StatusCode = HttpStatusCode.Gone,
-                            ReasonPhrase = "Failed to start recording room"
-                        };
+                        return Vidyo.StopRecording(_p.roomId);
+
                     }
                     catch (Exception ex)
                     {
