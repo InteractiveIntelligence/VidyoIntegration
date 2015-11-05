@@ -67,7 +67,6 @@
       <Component Id="AddinFiles" Guid="F0BB7F0C-5164-48C2-9A90-9DCC8EA0D73A" Directory="INSTALLLOCATION">
         <File Id="AutoCompleteTextBoxLib.dll" Name="AutoCompleteTextBoxLib.dll" Source="..\VidyoAddin\bin\Release\AutoCompleteTextBoxLib.dll" Vital="yes" KeyPath="no" DiskId="1"/>
         <File Id="AutoCompleteTextBoxLib.pdb" Name="AutoCompleteTextBoxLib.pdb" Source="..\VidyoAddin\bin\Release\AutoCompleteTextBoxLib.pdb" Vital="yes" KeyPath="no" DiskId="1"/>
-        <File Id="Newtonsoft.Json.dll" Name="Newtonsoft.Json.dll" Source="..\VidyoAddin\bin\Release\Newtonsoft.Json.dll" Vital="yes" KeyPath="no" DiskId="1"/>
         <File Id="RestSharp.dll" Name="RestSharp.dll" Source="..\VidyoAddin\bin\Release\RestSharp.dll" Vital="yes" KeyPath="no" DiskId="1"/>
         <File Id="VidyoIntegration.CommonLib.dll" Name="VidyoIntegration.CommonLib.dll" Source="..\VidyoAddin\bin\Release\VidyoIntegration.CommonLib.dll" Vital="yes" KeyPath="yes" DiskId="1"/>
         <File Id="VidyoIntegration.CommonLib.pdb" Name="VidyoIntegration.CommonLib.pdb" Source="..\VidyoAddin\bin\Release\VidyoIntegration.CommonLib.pdb" Vital="yes" KeyPath="no" DiskId="1"/>
