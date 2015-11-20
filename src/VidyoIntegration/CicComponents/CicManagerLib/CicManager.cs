@@ -868,6 +868,10 @@ namespace VidyoIntegration.CicManagerLib
                 {
                     if (IsRecordingEnabled())
                     {
+                        if (!String.IsNullOrEmpty(interaction.GetStringAttribute("Recorder_ScreenRecordingGuid")))
+                        {
+                            return true; // Recording is already started
+                        }
                         Trace.Main.note("Starting screen recording");
                         var qualityManagementManager = QualityManagementManager.GetInstance(_session);
                         var screenRecorder = new ScreenRecorder(qualityManagementManager);
