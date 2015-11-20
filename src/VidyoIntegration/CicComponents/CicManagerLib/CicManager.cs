@@ -854,33 +854,24 @@ namespace VidyoIntegration.CicManagerLib
             }
         }
 
-        private bool IsRecordingEnabled()
-        {
-            return ConfigurationProperties.EnableScreenRecording != null &&
-                (ConfigurationProperties.EnableScreenRecording.Equals("1") || ConfigurationProperties.EnableScreenRecording.ToLower().Equals("true") || ConfigurationProperties.EnableScreenRecording.ToLower().Equals("yes"));
-        }
-
         private bool StartScreenRecording(Interaction interaction)
         {
             using (Trace.Cic.scope())
             {
                 try
                 {
-                    if (IsRecordingEnabled())
+                    if (!String.IsNullOrEmpty(interaction.GetStringAttribute("Recorder_ScreenRecordingGuid")))
                     {
-                        if (!String.IsNullOrEmpty(interaction.GetStringAttribute("Recorder_ScreenRecordingGuid")))
-                        {
-                            return true; // Recording is already started
-                        }
-                        Trace.Main.note("Starting screen recording");
-                        var qualityManagementManager = QualityManagementManager.GetInstance(_session);
-                        var screenRecorder = new ScreenRecorder(qualityManagementManager);
-                        var guids = screenRecorder.StartRecording(interaction.UserQueueNames[0]);
-                        if (guids != null && guids.Count() > 0)
-                        {
-                            // Used by a custom handler to set custom attributes to the screen recording entry in Interaction Recorder
-                            interaction.SetStringAttribute("Recorder_ScreenRecordingGuid", guids.ElementAt(0).ToString());
-                        }
+                        return true; // Recording is already started
+                    }
+                    Trace.Main.note("Starting screen recording");
+                    var qualityManagementManager = QualityManagementManager.GetInstance(_session);
+                    var screenRecorder = new ScreenRecorder(qualityManagementManager);
+                    var guids = screenRecorder.StartRecording(interaction.UserQueueNames[0]);
+                    if (guids != null && guids.Count() > 0)
+                    {
+                        // Used by a custom handler to set custom attributes to the screen recording entry in Interaction Recorder
+                        interaction.SetStringAttribute("Recorder_ScreenRecordingGuid", guids.ElementAt(0).ToString());
                     }
                     return true;
                 }
