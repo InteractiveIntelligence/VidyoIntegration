@@ -26,7 +26,8 @@ namespace VidyoIntegration.CommonLib
         public static ChannelEndpointElement VidyoPortalUserServicePort { get { return GetEndpointConfig(); } }
         public static ChannelEndpointElement VidyoPortalGuestServicePort { get { return GetEndpointConfig(); } }
         public static ChannelEndpointElement VidyoPortalAdminServicePort { get { return GetEndpointConfig(); } }
-        public static ChannelEndpointElement VidyoReplayContentManagementServicePort { get { return GetEndpointConfig(); } }
+        public static bool HasReplayServer { get { return GetConfigBoolean(); } }
+        public static ChannelEndpointElement VidyoReplayContentManagementServicePort { get { return HasReplayServer ? GetEndpointConfig() : null; } }
 
         // Recording
         public static string EnableScreenRecording { get { return GetConfig(); } }
