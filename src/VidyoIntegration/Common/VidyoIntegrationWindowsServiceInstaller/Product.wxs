@@ -63,6 +63,8 @@
         <File Id="ININ.IceLib.Interactions.pdb" Name="ININ.IceLib.Interactions.pdb" Source="$(var.VidyoIntegrationWindowsService.TargetDir)\ININ.IceLib.Interactions.pdb" Vital="yes" KeyPath="no" DiskId="1"/>
         <File Id="ININ.IceLib.People.dll" Name="ININ.IceLib.People.dll" Source="$(var.CoreServiceLib.TargetDir)\ININ.IceLib.People.dll" Vital="yes" KeyPath="no" DiskId="1"/>
         <File Id="ININ.IceLib.People.pdb" Name="ININ.IceLib.People.pdb" Source="$(var.CoreServiceLib.TargetDir)\ININ.IceLib.People.pdb" Vital="yes" KeyPath="no" DiskId="1"/>
+        <File Id="ININ.IceLib.QualityManagement.dll" Name="ININ.IceLib.QualityManagement.dll" Source="$(var.CoreServiceLib.TargetDir)\ININ.IceLib.QualityManagement.dll" Vital="yes" KeyPath="no" DiskId="1"/>
+        <File Id="ININ.IceLib.QualityManagement.pdb" Name="ININ.IceLib.QualityManagement.pdb" Source="$(var.CoreServiceLib.TargetDir)\ININ.IceLib.QualityManagement.pdb" Vital="yes" KeyPath="no" DiskId="1"/>
         <File Id="ININ.IceLib.Statistics.dll" Name="ININ.IceLib.Statistics.dll" Source="$(var.CoreServiceLib.TargetDir)\ININ.IceLib.Statistics.dll" Vital="yes" KeyPath="no" DiskId="1"/>
         <File Id="ININ.IceLib.Statistics.pdb" Name="ININ.IceLib.Statistics.pdb" Source="$(var.CoreServiceLib.TargetDir)\ININ.IceLib.Statistics.pdb" Vital="yes" KeyPath="no" DiskId="1"/>
         <File Id="ININ.ThinBridge.dll" Name="ININ.ThinBridge.dll" Source="$(var.VidyoIntegrationWindowsService.TargetDir)\ININ.ThinBridge.dll" Vital="yes" KeyPath="no" DiskId="1"/>
