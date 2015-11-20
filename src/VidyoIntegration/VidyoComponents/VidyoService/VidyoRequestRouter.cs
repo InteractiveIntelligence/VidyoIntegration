@@ -499,6 +499,15 @@ namespace VidyoIntegration.VidyoService
                     {
                         UpdateCount("get /replay/{roomId}");
 
+                        if (!ConfigurationProperties.HasReplayServer)
+                        {
+                            return new Response
+                            {
+                                StatusCode = HttpStatusCode.ServiceUnavailable,
+                                ReasonPhrase = "No replay server specified in the .config file (HasReplayServer is false)"
+                            };
+                        }
+
                         // Validate input
                         if (_p.roomId <= 0)
                             return new Response
