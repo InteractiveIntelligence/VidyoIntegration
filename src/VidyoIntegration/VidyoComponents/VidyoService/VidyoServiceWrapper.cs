@@ -97,14 +97,21 @@ namespace VidyoIntegration.VidyoService
                     _vidyoUserService.ChannelFactory.CreateChannel();
 
                     // Replay service
-                    _vidyoReplayService =
-                        new VidyoReplayContentManagementServicePortTypeClient(
-                            MakeBinding(ConfigurationProperties.VidyoReplayContentManagementServicePort.Address.Scheme),
-                            new EndpointAddress(ConfigurationProperties.VidyoReplayContentManagementServicePort.Address));
-                    _vidyoReplayService.ClientCredentials.UserName.UserName = ConfigurationProperties.VidyoAdminUsername;
-                    _vidyoReplayService.ClientCredentials.UserName.Password = ConfigurationProperties.VidyoAdminPassword;
-                    _vidyoReplayService.ClientCredentials.SupportInteractive = false;
-                    _vidyoReplayService.ChannelFactory.CreateChannel();
+                    if (ConfigurationProperties.HasReplayServer)
+                    {
+                        _vidyoReplayService =
+                            new VidyoReplayContentManagementServicePortTypeClient(
+                                MakeBinding(ConfigurationProperties.VidyoReplayContentManagementServicePort.Address.Scheme),
+                                new EndpointAddress(ConfigurationProperties.VidyoReplayContentManagementServicePort.Address));
+                        _vidyoReplayService.ClientCredentials.UserName.UserName = ConfigurationProperties.VidyoAdminUsername;
+                        _vidyoReplayService.ClientCredentials.UserName.Password = ConfigurationProperties.VidyoAdminPassword;
+                        _vidyoReplayService.ClientCredentials.SupportInteractive = false;
+                        _vidyoReplayService.ChannelFactory.CreateChannel();
+                    }
+                    else
+                    {
+                        _vidyoReplayService = null;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -712,12 +719,18 @@ namespace VidyoIntegration.VidyoService
             {
                 try
                 {
+                    if (_vidyoReplayService == null)
+                    {
+                        return null;
+                    }
+
                     Trace.Vidyo.note("Getting recording URL for room {}", roomId);
 
                     var recordsSearchRequest = new RecordsSearchRequest();
                     recordsSearchRequest.tenantName = "ININ";
                     recordsSearchRequest.sortBy = sortBy.date;
                     recordsSearchRequest.dir = sortDirection.DESC;
+                    recordsSearchRequest.limit = 1;
                     //recordsSearchRequest.query = String.Format("roomID={0}", roomId);
                     var recordsSearchResponse = _vidyoReplayService.RecordsSearch(recordsSearchRequest);
 
